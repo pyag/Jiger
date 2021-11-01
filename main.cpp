@@ -7,26 +7,11 @@
 #include "FileOperations.h"
 
 sf::Color bgColor(18, 18, 18);
-sf::Color fontColor(235, 238, 235);
 sf::Color blue(0, 0, 255);
 
-sf::Font editorFont;
-sf::Text buffer;
-
-int fontSize;
 std::string bufferText;
 
 int main() {
-  if (!editorFont.loadFromFile("./fonts/consolas/consola.ttf")) {
-    std::cout << "Font cannot be loaded!\n";
-    return 1;
-  }
-
-  fontSize = 18;
-  buffer.setFont(editorFont);
-  buffer.setCharacterSize(fontSize);
-  buffer.setColor(fontColor);
-
   sf::RenderWindow window(sf::VideoMode(800, 600), "Jiger");
   EditorSpace editor(bufferText);
   editor.setPosition(50.0f, 50.0f);
@@ -46,11 +31,8 @@ int main() {
       editor.pollUserEvents(event);
     }
 
-    buffer.setString(editor.getBufferText());
-
     window.clear(bgColor);
 
-    // editor.register();
     // window.draw(buffer);
     editor.drawOnScreen(window);
     

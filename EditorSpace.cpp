@@ -1,4 +1,3 @@
-#include <iostream>
 #include "EditorSpace.h"
 
 EditorSpace::EditorSpace (std::string &bufferText) {
@@ -44,4 +43,31 @@ std::string EditorSpace::getBufferText () {
 
 void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   Div::drawOnScreen(window);
+
+  sf::Color fontColor(235, 238, 235);
+  sf::Font editorFont;
+  sf::Text word;
+
+  int fontSize;
+
+  if (!editorFont.loadFromFile("./fonts/consolas/consola.ttf")) {
+    std::cout << "Font cannot be loaded!\n";
+    exit(1);
+  }
+
+  fontSize = 18;
+  word.setFont(editorFont);
+  word.setCharacterSize(fontSize);
+  word.setColor(fontColor);
+
+  sf::Vector2f parentDivPos = Div::getPosition();
+
+  for (int i = 0; i < this->bufferText.length(); i++) {
+    word.setString(this->bufferText[i]);
+    word.setPosition(sf::Vector2f(parentDivPos.x + (float)i * 10.0f, parentDivPos.y));
+    window.draw(word);
+  }
+
+  // buffer.setString(this->bufferText);
+  // window.draw(buffer);
 }
