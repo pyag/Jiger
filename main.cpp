@@ -14,8 +14,8 @@ std::string bufferText;
 int main() {
   sf::RenderWindow window(sf::VideoMode(800, 600), "Jiger");
   EditorSpace editor(bufferText);
-  editor.setPosition(50.0f, 50.0f);
-  editor.setSize(400.0f, 200.0f);
+  editor.setPosition(10.0f, 10.0f);
+  editor.setSize(700.0f, 200.0f);
   editor.fillColor(blue);
 
   while (window.isOpen()) {
@@ -25,17 +25,12 @@ int main() {
         window.close();
       }
 
-      /***
-       * Editor Space/Box polling events.
-       **/
+      // Editor Space/Box polling events.
       editor.pollUserEvents(event);
     }
 
     window.clear(bgColor);
-
-    // window.draw(buffer);
     editor.drawOnScreen(window);
-    
     window.display();
   }
 
