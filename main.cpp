@@ -4,32 +4,15 @@
 #include <SFML/Window.hpp>
 
 #include "EditorSpace.h"
+#include "FileOperations.h"
 
 sf::Color bgColor(18, 18, 18);
+sf::Color fontColor(235, 238, 235);
 sf::Font editorFont;
 sf::Text buffer;
 
 int fontSize;
 std::string bufferText;
-
-void keyPressEvents (int unicode) {
-  if (unicode == 8) {
-    bufferText = bufferText.substr(0, bufferText.length() - 1);
-    return;
-  }
-
-  if (unicode == 10) {
-    bufferText += "\n";
-    return;
-  }
-
-  if (unicode >= 32 && unicode <= 126) {
-    bufferText += (char)(unicode);
-    return;
-  }
-
-  return;
-}
 
 int main() {
   if (!editorFont.loadFromFile("./fonts/consolas/consola.ttf")) {
@@ -39,6 +22,8 @@ int main() {
 
   fontSize = 18;
   buffer.setFont(editorFont);
+  buffer.setCharacterSize(fontSize);
+  buffer.setColor(fontColor);
 
   sf::RenderWindow window(sf::VideoMode(800, 600), "Jiger");
   EditorSpace editor(bufferText);
@@ -57,7 +42,6 @@ int main() {
     }
 
     buffer.setString(editor.getBufferText());
-    buffer.setCharacterSize(fontSize);
 
     window.clear(bgColor);
     window.draw(buffer);
