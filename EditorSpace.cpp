@@ -41,3 +41,7 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
 std::string EditorSpace::getBufferText () {
   return this->bufferText;
 }
+
+void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
+  Div::drawOnScreen(window);
+}

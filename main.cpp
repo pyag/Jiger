@@ -8,6 +8,8 @@
 
 sf::Color bgColor(18, 18, 18);
 sf::Color fontColor(235, 238, 235);
+sf::Color blue(0, 0, 255);
+
 sf::Font editorFont;
 sf::Text buffer;
 
@@ -27,6 +29,9 @@ int main() {
 
   sf::RenderWindow window(sf::VideoMode(800, 600), "Jiger");
   EditorSpace editor(bufferText);
+  editor.setPosition(50.0f, 50.0f);
+  editor.setSize(400.0f, 200.0f);
+  editor.fillColor(blue);
 
   while (window.isOpen()) {
     sf::Event event;
@@ -44,7 +49,11 @@ int main() {
     buffer.setString(editor.getBufferText());
 
     window.clear(bgColor);
-    window.draw(buffer);
+
+    // editor.register();
+    // window.draw(buffer);
+    editor.drawOnScreen(window);
+    
     window.display();
   }
 
