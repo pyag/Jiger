@@ -49,6 +49,8 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   sf::Text word;
 
   int fontSize;
+  int xWordPosition;
+  std::string wordText;
 
   if (!editorFont.loadFromFile("./fonts/consolas/consola.ttf")) {
     std::cout << "Font cannot be loaded!\n";
@@ -56,18 +58,21 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   }
 
   fontSize = 18;
+  xWordPosition = 0;
   word.setFont(editorFont);
   word.setCharacterSize(fontSize);
   word.setColor(fontColor);
 
   sf::Vector2f parentDivPos = Div::getPosition();
 
-  for (int i = 0; i < this->bufferText.length(); i++) {
-    word.setString(this->bufferText[i]);
-    word.setPosition(sf::Vector2f(parentDivPos.x + (float)i * 10.0f, parentDivPos.y));
-    window.draw(word);
-  }
+  Parser parser(this->bufferText);
+  while (parser.hasNextToken()) {
+    wordText = parser.getToken();
 
-  // buffer.setString(this->bufferText);
-  // window.draw(buffer);
+    for (int i = 0; i < wordText.length(); i++) {
+      word.setString(wordText[i]);
+      word.setPosition(sf::Vector2f(parentDivPos.x + (float)(xWordPosition++) * 10.0f, parentDivPos.y));
+      window.draw(word);
+    }
+  }
 }

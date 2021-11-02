@@ -5,6 +5,7 @@
 #include <SFML/Window.hpp>
 
 #include "Div.h"
+#include "Parser.h"
 
 #ifndef EDITOR_SPACE
 #define EDITOR_SPACE
