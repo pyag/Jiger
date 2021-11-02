@@ -11,7 +11,7 @@ void EditorSpace::pollKeyboard (int unicode) {
     return;
   }
 
-  if (unicode == 10) {
+  if (unicode == 13) {
     this->bufferText += "\n";
     return;
   }
@@ -48,8 +48,8 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   sf::Font editorFont;
   sf::Text word;
 
-  int fontSize;
-  int xWordPosition;
+  int fontSize, xWordPosition, yWordPosition;
+  float wordWidth, wordHeight;
   std::string wordText;
 
   if (!editorFont.loadFromFile("./fonts/consolas/consola.ttf")) {
@@ -59,6 +59,10 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
 
   fontSize = 18;
   xWordPosition = 0;
+  yWordPosition = 0;
+  wordWidth = 10.0f;
+  wordHeight = 19.0f;
+
   word.setFont(editorFont);
   word.setCharacterSize(fontSize);
   word.setColor(fontColor);
@@ -69,9 +73,21 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   while (parser.hasNextToken()) {
     wordText = parser.getToken();
 
+    if (wordText == "int" || wordText == "string" || wordText == "std" || wordText == "return") {
+      word.setColor(sf::Color::Black);
+    } else {
+      word.setColor(fontColor);
+    }
+
+    if (wordText == "\n") {
+      yWordPosition += wordHeight;
+      xWordPosition = 0;
+      continue;
+    }
+
     for (int i = 0; i < wordText.length(); i++) {
       word.setString(wordText[i]);
-      word.setPosition(sf::Vector2f(parentDivPos.x + (float)(xWordPosition++) * 10.0f, parentDivPos.y));
+      word.setPosition(sf::Vector2f(parentDivPos.x + (float)(xWordPosition++) * wordWidth, parentDivPos.y + (float)yWordPosition));
       window.draw(word);
     }
   }
