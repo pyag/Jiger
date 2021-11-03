@@ -9,7 +9,15 @@ EditorSpace::EditorSpace (std::string &bufferText) {
 void EditorSpace::pollKeyboard (int unicode) {
   // Backspace
   if (unicode == 8) {
-    this->bufferText = this->bufferText.substr(0, this->bufferText.length() - 1);
+    if (this->cursorIndex == this->bufferText.length()) {
+      this->bufferText = this->bufferText.substr(0, this->bufferText.length() - 1);
+    } else {
+      if (this->cursorIndex > 0) {
+        this->bufferText = this->bufferText.substr(0, this->cursorIndex - 1)
+                          + this->bufferText.substr(this->cursorIndex, this->bufferText.length());
+      }
+    }
+
     if (this->cursorIndex > 0) this->cursorIndex--;
     return;
   }
@@ -24,7 +32,7 @@ void EditorSpace::pollKeyboard (int unicode) {
     } else {
       this->bufferText = this->bufferText.substr(0, this->cursorIndex) 
                           + "\n" 
-                          + this->bufferText.substr(this->cursorIndex + 1, this->bufferText.length());
+                          + this->bufferText.substr(this->cursorIndex, this->bufferText.length());
     }
     
     this->cursorIndex++;
@@ -39,7 +47,7 @@ void EditorSpace::pollKeyboard (int unicode) {
     } else {
       this->bufferText = this->bufferText.substr(0, this->cursorIndex)
                           + (char)(unicode)
-                          + this->bufferText.substr(this->cursorIndex + 1, this->bufferText.length());
+                          + this->bufferText.substr(this->cursorIndex, this->bufferText.length());
     }
 
     this->cursorIndex++;
@@ -54,7 +62,23 @@ void EditorSpace::pollMouse () {
 }
 
 void EditorSpace::pollUserEvents (sf::Event &event) {
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+    this->showCursor = true;
+    this->clock.restart();
+    if (this->cursorIndex > 0) this->cursorIndex--;
+    return;
+  }
+
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+    this->showCursor = true;
+    this->clock.restart();
+    if (this->cursorIndex < this->bufferText.length()) this->cursorIndex++;
+    return;
+  }
+
   if (event.type == sf::Event::TextEntered) {
+    this->showCursor = true;
+    this->clock.restart();
     this->pollKeyboard(event.text.unicode);  
   }
 
