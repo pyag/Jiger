@@ -3,21 +3,46 @@
 EditorSpace::EditorSpace (std::string &bufferText) {
   this->bufferText = bufferText;
   this->cursorIndex = 0;
+  this->showCursor = true;
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
+  // Backspace
   if (unicode == 8) {
     this->bufferText = this->bufferText.substr(0, this->bufferText.length() - 1);
+    if (this->cursorIndex > 0) this->cursorIndex--;
     return;
   }
 
+  // Return
   if (unicode == 13) {
-    this->bufferText += "\n";
+    int index = 0;
+    if (this->cursorIndex == this->bufferText.length()) {
+      this->bufferText += "\n"; 
+    } else if (this->cursorIndex == 0) {
+      this->bufferText = "\n" + this->bufferText;
+    } else {
+      this->bufferText = this->bufferText.substr(0, this->cursorIndex) 
+                          + "\n" 
+                          + this->bufferText.substr(this->cursorIndex + 1, this->bufferText.length());
+    }
+    
+    this->cursorIndex++;
     return;
   }
 
   if (unicode >= 32 && unicode <= 126) {
-    this->bufferText += (char)(unicode);
+    if (this->cursorIndex == this->bufferText.length()) {
+      this->bufferText += (char)(unicode); 
+    } else if (this->cursorIndex == 0) {
+      this->bufferText = (char)(unicode) + this->bufferText;
+    } else {
+      this->bufferText = this->bufferText.substr(0, this->cursorIndex)
+                          + (char)(unicode)
+                          + this->bufferText.substr(this->cursorIndex + 1, this->bufferText.length());
+    }
+
+    this->cursorIndex++;
     return;
   }
 
@@ -48,8 +73,9 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   sf::Font editorFont;
   sf::Text word;
 
-  int fontSize, xWordPosition, yWordPosition;
-  float wordWidth, wordHeight;
+  int fontSize, xWordPosition, yWordPosition, xCursorPosition, yCursorPosition;
+  int charIndex;
+  float wordWidth, wordHeight, cursorHeight, cursorWidth;
   std::string wordText;
 
   if (!editorFont.loadFromFile("./fonts/consolas/consola.ttf")) {
@@ -62,6 +88,13 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   yWordPosition = 0;
   wordWidth = 10.0f;
   wordHeight = 19.0f;
+  charIndex = 0;
+
+  // Cursor display settings
+  cursorHeight = 22.0f;
+  cursorWidth = 2.0f;
+  xCursorPosition = 0;
+  yCursorPosition = 0;
 
   word.setFont(editorFont);
   word.setCharacterSize(fontSize);
@@ -80,15 +113,45 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
     }
 
     if (wordText == "\n") {
-      yWordPosition += wordHeight;
+      charIndex++;
       xWordPosition = 0;
+      yWordPosition += wordHeight;
+
+      // Setting cursor to newline
+      if (this->cursorIndex == charIndex) {
+        xCursorPosition = xWordPosition;
+        yCursorPosition = yWordPosition;
+      }
+
       continue;
     }
 
     for (int i = 0; i < wordText.length(); i++) {
+      charIndex++;
       word.setString(wordText[i]);
       word.setPosition(sf::Vector2f(parentDivPos.x + (float)(xWordPosition++) * wordWidth, parentDivPos.y + (float)yWordPosition));
+      
+      //Setting cursor position
+      if (this->cursorIndex == charIndex) {
+        xCursorPosition = xWordPosition;
+        yCursorPosition = yWordPosition;
+      }
+
       window.draw(word);
     }
+  }
+
+  this->cursor.setSize(cursorWidth, cursorHeight);
+  this->cursor.fillColor(fontColor);
+  this->cursor.setPosition(parentDivPos.x + (float)(xCursorPosition) * wordWidth, parentDivPos.y + (float)yCursorPosition + 2.0f);
+
+
+  if (this->clock.getElapsedTime() > sf::milliseconds(550)) {
+    this->showCursor = !this->showCursor;
+    this->clock.restart();
+  }
+
+  if (this->showCursor) {
+    this->cursor.drawOnScreen(window);
   }
 }

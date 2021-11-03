@@ -15,6 +15,10 @@ public:
   std::string bufferText;
   int cursorIndex;
 
+  Div cursor;
+  bool showCursor;
+  sf::Clock clock;
+
   EditorSpace(std::string &);
   std::string getBufferText();
   void pollUserEvents(sf::Event &);
