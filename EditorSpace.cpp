@@ -101,7 +101,6 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
   }
 
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-    std::cout << this->cursorIndex << "\n";
     this->showCursor = true;
     this->clock.restart();
 
@@ -220,6 +219,9 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
       window.draw(word);
     }
   }
+
+  // the line below captures last line words
+  this->wordsInLine.push_back(xWordPosition);
 
   this->cursor.setSize(cursorWidth, cursorHeight);
   this->cursor.fillColor(fontColor);
