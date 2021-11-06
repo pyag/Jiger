@@ -4,6 +4,9 @@ EditorSpace::EditorSpace (std::string &bufferText) {
   this->bufferText = bufferText;
   this->cursorIndex = 0;
   this->showCursor = true;
+
+  this->curLine = 0;
+  this->wordsInLineBeforeCursor = 0;
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
@@ -76,6 +79,50 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     return;
   }
 
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+    this->showCursor = true;
+    this->clock.restart();
+
+    if (this->curLine == 0) {
+      this->cursorIndex = 0;
+      return;
+    }
+
+    int wordsInLineAbove = this->wordsInLine[this->curLine - 1];
+    int wordsTillCursor = this->wordsInLineBeforeCursor;
+    this->cursorIndex = this->cursorIndex - wordsTillCursor;
+    if (wordsInLineAbove - wordsTillCursor > 0) {
+      this->cursorIndex = this->cursorIndex - (wordsInLineAbove - wordsTillCursor);
+    }
+    this->cursorIndex--;
+    this->curLine--;
+
+    return;
+  }
+
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+    std::cout << this->cursorIndex << "\n";
+    this->showCursor = true;
+    this->clock.restart();
+
+    if (this->curLine == this->wordsInLine.size() - 1) {
+      this->cursorIndex = this->bufferText.length();
+      return;
+    }
+
+    int wordsInLineBelow = this->wordsInLine[this->curLine + 1];
+    int wordsTillCursor = this->wordsInLineBeforeCursor;
+    int wordsInCurLine = this->wordsInLine[this->curLine];
+    this->cursorIndex = this->cursorIndex + (wordsInCurLine - wordsTillCursor);
+    
+    this->cursorIndex += wordsTillCursor < wordsInLineBelow ? wordsTillCursor : wordsInLineBelow;
+
+    this->cursorIndex++;
+    this->curLine++;
+
+    return;
+  }
+
   if (event.type == sf::Event::TextEntered) {
     this->showCursor = true;
     this->clock.restart();
@@ -98,7 +145,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   sf::Text word;
 
   int fontSize, xWordPosition, yWordPosition, xCursorPosition, yCursorPosition;
-  int charIndex;
+  int charIndex, lineCount;
   float wordWidth, wordHeight, cursorHeight, cursorWidth;
   std::string wordText;
 
@@ -113,6 +160,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   wordWidth = 10.0f;
   wordHeight = 19.0f;
   charIndex = 0;
+  lineCount = 0;
 
   // Cursor display settings
   cursorHeight = 22.0f;
@@ -126,6 +174,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
 
   sf::Vector2f parentDivPos = Div::getPosition();
 
+  this->wordsInLine.clear();
   Parser parser(this->bufferText);
   while (parser.hasNextToken()) {
     wordText = parser.getToken();
@@ -138,6 +187,9 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
 
     if (wordText == "\n") {
       charIndex++;
+      lineCount++;
+      this->wordsInLine.push_back(xWordPosition);
+
       xWordPosition = 0;
       yWordPosition += wordHeight;
 
@@ -145,6 +197,8 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
       if (this->cursorIndex == charIndex) {
         xCursorPosition = xWordPosition;
         yCursorPosition = yWordPosition;
+        this->curLine = lineCount;
+        this->wordsInLineBeforeCursor = xCursorPosition;
       }
 
       continue;
@@ -159,6 +213,8 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
       if (this->cursorIndex == charIndex) {
         xCursorPosition = xWordPosition;
         yCursorPosition = yWordPosition;
+        this->curLine = lineCount;
+        this->wordsInLineBeforeCursor = xCursorPosition;
       }
 
       window.draw(word);
@@ -168,7 +224,6 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   this->cursor.setSize(cursorWidth, cursorHeight);
   this->cursor.fillColor(fontColor);
   this->cursor.setPosition(parentDivPos.x + (float)(xCursorPosition) * wordWidth, parentDivPos.y + (float)yCursorPosition + 2.0f);
-
 
   if (this->clock.getElapsedTime() > sf::milliseconds(550)) {
     this->showCursor = !this->showCursor;

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -14,6 +15,8 @@ class EditorSpace: public Div {
 public:
   std::string bufferText;
   int cursorIndex;
+  int curLine, wordsInLineBeforeCursor;
+  std::vector <int> wordsInLine;
 
   Div cursor;
   bool showCursor;
