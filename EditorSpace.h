@@ -7,6 +7,7 @@
 
 #include "Div.h"
 #include "Parser.h"
+#include "GlobalConfigs.h"
 
 #ifndef EDITOR_SPACE
 #define EDITOR_SPACE
@@ -22,7 +23,9 @@ public:
   bool showCursor;
   sf::Clock clock;
 
-  EditorSpace(std::string &);
+  GlobalConfig config;
+
+  EditorSpace(std::string &, GlobalConfig &);
   std::string getBufferText();
   void pollUserEvents(sf::Event &);
   void pollKeyboard(int);

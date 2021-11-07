@@ -1,12 +1,14 @@
 #include "EditorSpace.h"
 
-EditorSpace::EditorSpace (std::string &bufferText) {
+EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config) {
   this->bufferText = bufferText;
   this->cursorIndex = 0;
   this->showCursor = true;
 
   this->curLine = 0;
   this->wordsInLineBeforeCursor = 0;
+
+  this->config = config;
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
@@ -139,36 +141,29 @@ std::string EditorSpace::getBufferText () {
 void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   Div::drawOnScreen(window);
 
-  sf::Color fontColor(235, 238, 235);
-  sf::Font editorFont;
+  sf::Color fontColor(
+    this->config.getFontColor().r,
+    this->config.getFontColor().g,
+    this->config.getFontColor().b
+  );
+  sf::Font editorFont = this->config.getFont();
   sf::Text word;
 
-  int fontSize, xWordPosition, yWordPosition, xCursorPosition, yCursorPosition;
+  int xWordPosition, yWordPosition, xCursorPosition, yCursorPosition;
   int charIndex, lineCount;
-  float wordWidth, wordHeight, cursorHeight, cursorWidth;
   std::string wordText;
 
-  if (!editorFont.loadFromFile("./fonts/consolas/consola.ttf")) {
-    std::cout << "Font cannot be loaded!\n";
-    exit(1);
-  }
-
-  fontSize = 18;
   xWordPosition = 0;
   yWordPosition = 0;
-  wordWidth = 10.0f;
-  wordHeight = 19.0f;
   charIndex = 0;
   lineCount = 0;
 
   // Cursor display settings
-  cursorHeight = 22.0f;
-  cursorWidth = 2.0f;
   xCursorPosition = 0;
   yCursorPosition = 0;
 
   word.setFont(editorFont);
-  word.setCharacterSize(fontSize);
+  word.setCharacterSize(this->config.getFontSize());
   word.setColor(fontColor);
 
   sf::Vector2f parentDivPos = Div::getPosition();
@@ -190,7 +185,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
       this->wordsInLine.push_back(xWordPosition);
 
       xWordPosition = 0;
-      yWordPosition += wordHeight;
+      yWordPosition += this->config.getWordHeight();
 
       // Setting cursor to newline
       if (this->cursorIndex == charIndex) {
@@ -206,7 +201,12 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
     for (int i = 0; i < wordText.length(); i++) {
       charIndex++;
       word.setString(wordText[i]);
-      word.setPosition(sf::Vector2f(parentDivPos.x + (float)(xWordPosition++) * wordWidth, parentDivPos.y + (float)yWordPosition));
+      word.setPosition(
+        sf::Vector2f(
+          parentDivPos.x + (float)(xWordPosition++) * this->config.getWordWidth(), 
+          parentDivPos.y + (float)yWordPosition
+        )
+      );
       
       //Setting cursor position
       if (this->cursorIndex == charIndex) {
@@ -223,11 +223,14 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   // the line below captures last line words
   this->wordsInLine.push_back(xWordPosition);
 
-  this->cursor.setSize(cursorWidth, cursorHeight);
+  this->cursor.setSize(this->config.getCursorWidth(), this->config.getCursorHeight());
   this->cursor.fillColor(fontColor);
-  this->cursor.setPosition(parentDivPos.x + (float)(xCursorPosition) * wordWidth, parentDivPos.y + (float)yCursorPosition + 2.0f);
+  this->cursor.setPosition(
+    parentDivPos.x + (float)(xCursorPosition) * this->config.getWordWidth(),
+    parentDivPos.y + (float)yCursorPosition + 2.0f
+  );
 
-  if (this->clock.getElapsedTime() > sf::milliseconds(550)) {
+  if (this->clock.getElapsedTime() > sf::milliseconds(this->config.getCursorBlinkTimeInSeconds())) {
     this->showCursor = !this->showCursor;
     this->clock.restart();
   }
