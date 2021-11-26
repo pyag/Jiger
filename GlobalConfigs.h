@@ -4,6 +4,19 @@
 
 #include <SFML/Graphics.hpp>
 
+#ifndef PROG_LANG
+#define PROG_LANG
+
+enum ProgLang {
+  PlainText,
+  Cpp,
+  Java,
+  Python,
+  JavaScript
+};
+
+#endif
+
 #ifndef COLOR_COMPONENT
 #define COLOR_COMPONENT
 

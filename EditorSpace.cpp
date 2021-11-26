@@ -9,6 +9,7 @@ EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config) {
   this->wordsInLineBeforeCursor = 0;
 
   this->config = config;
+  this->langSelected = PlainText;
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
@@ -138,6 +139,10 @@ std::string EditorSpace::getBufferText () {
   return this->bufferText;
 }
 
+void EditorSpace::setLanguage (ProgLang lang) {
+  this->langSelected = lang;
+}
+
 void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   Div::drawOnScreen(window);
 
@@ -148,6 +153,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   );
   sf::Font editorFont = this->config.getFont();
   sf::Text word;
+  ProgLang languageSelected = this->langSelected;
 
   int xWordPosition, yWordPosition, xCursorPosition, yCursorPosition;
   int charIndex, lineCount;
@@ -173,11 +179,15 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   while (parser.hasNextToken()) {
     wordText = parser.getToken();
 
-    if (wordText == "int" || wordText == "string" || wordText == "std" || wordText == "return") {
-      word.setColor(sf::Color::Black);
-    } else {
-      word.setColor(fontColor);
-    }
+    ColorComponent colorRgb = wordHighlighter(wordText, languageSelected);
+    sf::Color curWordColor(colorRgb.r, colorRgb.g, colorRgb.b);
+    word.setColor(curWordColor);
+
+    // if (wordText == "int" || wordText == "string" || wordText == "std" || wordText == "return") {
+    //   word.setColor(sf::Color::Black);
+    // } else {
+    //   word.setColor(fontColor);
+    // }
 
     if (wordText == "\n") {
       charIndex++;

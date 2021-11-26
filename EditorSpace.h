@@ -8,6 +8,7 @@
 #include "Div.h"
 #include "Parser.h"
 #include "GlobalConfigs.h"
+#include "langHighlight/highlight.h"
 
 #ifndef EDITOR_SPACE
 #define EDITOR_SPACE
@@ -18,6 +19,8 @@ public:
   int cursorIndex;
   int curLine, wordsInLineBeforeCursor;
   std::vector <int> wordsInLine;
+  // Don't worry ProgLang is just an enum
+  ProgLang langSelected;
 
   Div cursor;
   bool showCursor;
@@ -27,6 +30,7 @@ public:
 
   EditorSpace(std::string &, GlobalConfig &);
   std::string getBufferText();
+  void setLanguage(ProgLang);
   void pollUserEvents(sf::Event &);
   void pollKeyboard(int);
   void pollMouse();

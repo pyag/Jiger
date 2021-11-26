@@ -1,0 +1,5 @@
+Compile: g++ -c main.cpp GlobalConfigs.cpp  Div.cpp Parser.cpp EditorSpace.cpp FileOperations.cpp langHighlight/*.cpp langHighlight/cpp/*.cpp -std=c++11
+
+Build:  g++ main.o GlobalConfigs.o Div.o Parser.o EditorSpace.o FileOperations.o highlight.o keyword.o -o jiger -lsfml-graphics -lsfml-window -lsfml-system
+
+Run: ./jiger
