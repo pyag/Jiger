@@ -28,9 +28,24 @@ void EditorSpace::pollKeyboard (int unicode) {
     return;
   }
 
+  // Tab - For now its fixed for two spaces
+  if (unicode == 9) {
+    if (this->cursorIndex == this->bufferText.length()) {
+      this->bufferText += "  ";
+    } else if (this->cursorIndex == 0) {
+      this->bufferText = "  " + this->bufferText;
+    } else {
+      this->bufferText = this->bufferText.substr(0, this->cursorIndex)
+                          + "  "
+                          + this->bufferText.substr(this->cursorIndex, this->bufferText.length());
+    }
+
+    this->cursorIndex += 2;
+    return;
+  }
+
   // Return
   if (unicode == 13) {
-    int index = 0;
     if (this->cursorIndex == this->bufferText.length()) {
       this->bufferText += "\n"; 
     } else if (this->cursorIndex == 0) {
@@ -182,12 +197,6 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
     ColorComponent colorRgb = wordHighlighter(wordText, languageSelected);
     sf::Color curWordColor(colorRgb.r, colorRgb.g, colorRgb.b);
     word.setColor(curWordColor);
-
-    // if (wordText == "int" || wordText == "string" || wordText == "std" || wordText == "return") {
-    //   word.setColor(sf::Color::Black);
-    // } else {
-    //   word.setColor(fontColor);
-    // }
 
     if (wordText == "\n") {
       charIndex++;
