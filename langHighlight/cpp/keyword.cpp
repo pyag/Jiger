@@ -4,7 +4,7 @@ std::vector <std::string> cppDataTypes {
   "char", "double", "float",
   "int", "long", "register",
   "short", "signed", "unsigned",
-  "volatile"
+  "volatile", "using"
 };
 
 std::vector <std::string> otherCppKeywords {
@@ -13,7 +13,8 @@ std::vector <std::string> otherCppKeywords {
   "enum", "extern", "for", "friend", "goto", "if", "inline",
   "new", "operator", "private", "protected", "public", "sizedof",
   "static", "struct", "switch", "template", "this", "throw",
-  "try", "typedef", "union", "virtual", "void", "while"
+  "try", "typedef", "union", "virtual", "void", "while", "return",
+  "namespace"
 };
 
 ColorComponent CppHighlighter (std::string &word) {
