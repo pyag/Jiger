@@ -2,9 +2,9 @@
 
 std::vector <std::string> cppDataTypes {
   "char", "double", "float",
-  "int", "long", "register",
-  "short", "signed", "unsigned",
-  "volatile", "using"
+  "int", "long", "bool", "string",
+  "register", "short", "signed",
+  "unsigned", "volatile", "using"
 };
 
 std::vector <std::string> otherCppKeywords {
@@ -17,18 +17,34 @@ std::vector <std::string> otherCppKeywords {
   "namespace"
 };
 
+std::vector <std::string> cppDirectives {
+  "#include", "#ifndef", "#define", "#if", "#else",
+  "#endif"
+};
+
+ColorComponent cppDataTypesColor(130, 105, 255);
+ColorComponent otherCppComponentColor(242, 140, 40);
+ColorComponent defaultTextColor(235, 238, 235);
+ColorComponent cppDirectivesColor(111, 143, 175);
+
 ColorComponent CppHighlighter (std::string &word) {
+  for (int i = 0; i < cppDirectives.size(); i++) {
+    if (cppDirectives[i] == word) {
+      return cppDirectivesColor;
+    }
+  }
+
   for (int i = 0; i < cppDataTypes.size(); i++) {
     if (cppDataTypes[i] == word) {
-      return ColorComponent(100, 149, 237);
+      return cppDataTypesColor;
     }
   }
 
   for (int i = 0; i < otherCppKeywords.size(); i++) {
     if (otherCppKeywords[i] == word) {
-      return ColorComponent(251, 236, 93);
+      return otherCppComponentColor;
     }
   }
 
-  return ColorComponent(235, 238, 235);
+  return defaultTextColor;
 }

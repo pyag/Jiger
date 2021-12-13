@@ -22,11 +22,13 @@ std::string Parser::getToken () {
   std::string token;
   bool isAlphabet = false;
   int index = this->curIndex;
+  char ch;
   
   if (index < this->buffer.length()) {
-    while((this->buffer[index] >= 'a' && this->buffer[index] <= 'z') 
-      || (this->buffer[index] >= 'A' && this->buffer[index] <= 'Z')) {
-      token += this->buffer[index++];
+    ch = this->buffer[index];
+    while((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch == '#')) {
+      token += ch;
+      ch = this->buffer[++index];
       isAlphabet = true;
     }
 

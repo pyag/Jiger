@@ -23,7 +23,7 @@ int main() {
   EditorSpace editor(bufferText, globalEditorConfig);
   editor.setPosition(10.0f, 10.0f);
   editor.setSize(700.0f, 200.0f);
-  editor.fillColor(blue);
+  editor.fillColor(bgColor);
 
   while (window.isOpen()) {
     sf::Event event;
