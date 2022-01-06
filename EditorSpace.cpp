@@ -1,6 +1,6 @@
 #include "EditorSpace.h"
 
-EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config) {
+EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config, sf::RenderWindow *window) {
   this->bufferText = bufferText;
   this->cursorIndex = 0;
   this->showCursor = true;
@@ -10,6 +10,7 @@ EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config) {
 
   this->config = config;
   this->langSelected = PlainText;
+  this->window = window;
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
@@ -83,6 +84,16 @@ void EditorSpace::pollMouse () {
 }
 
 void EditorSpace::pollUserEvents (sf::Event &event) {
+  if (event.type == sf::Event::Resized) {
+    // Adjust editor size
+    this->setSize(this->getWindow()->getSize().x, this->getWindow()->getSize().y);
+
+    // Adjusting editor view
+    sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
+    this->getWindow()->setView(sf::View(visibleArea));
+    return;
+  }
+
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
     this->showCursor = true;
     this->clock.restart();
@@ -257,4 +268,16 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   if (this->showCursor) {
     this->cursor.drawOnScreen(window);
   }
+
+
+  // std::cout << "Last cursor pos y = " << this->cursor.getPosition().y + this->cursor.height << "\n";
+  // std::cout << "editor last point pos y = " << this->getPosition().y + this->height << "\n";
+
+  // if (this->cursor.getPosition().y + this->cursor.height > this->getPosition().y + this->height) {
+  //   std::cout << "Scroll!!!\n";
+  // }
+}
+
+sf::RenderWindow *EditorSpace::getWindow () {
+  return this->window;
 }

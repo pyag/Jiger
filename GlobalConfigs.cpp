@@ -20,8 +20,8 @@ GlobalConfig::GlobalConfig () {
   this->cursorHeight = 22.0f;
   this->cursorWidth = 2.0f;
 
-  this->setFontColor(235, 238, 235);
-  this->setBgColor(18, 18, 18);
+  this->setFontColor(200, 200, 200);
+  this->setBgColor(30, 30, 30);
   this->setFont("consola");
 }
 

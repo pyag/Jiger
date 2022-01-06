@@ -24,7 +24,7 @@ std::vector <std::string> cppDirectives {
 
 ColorComponent cppDataTypesColor(130, 105, 255);
 ColorComponent otherCppComponentColor(242, 140, 40);
-ColorComponent defaultTextColor(235, 238, 235);
+ColorComponent defaultTextColor(200, 200, 200);
 ColorComponent cppDirectivesColor(111, 143, 175);
 
 ColorComponent CppHighlighter (std::string &word) {
