@@ -79,10 +79,6 @@ void EditorSpace::pollKeyboard (int unicode) {
   return;
 }
 
-void EditorSpace::pollMouse () {
-  return;
-}
-
 void EditorSpace::pollUserEvents (sf::Event &event) {
   if (event.type == sf::Event::Resized) {
     // Adjust editor size
@@ -157,7 +153,20 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     this->pollKeyboard(event.text.unicode);  
   }
 
-  this->pollMouse();
+  if (event.type == sf::Event::MouseWheelScrolled) {
+    if (event.mouseWheelScroll.delta > 0) {
+      sf::View currentView = this->getWindow()->getView();
+      currentView.move(0.f, -40.f);
+      this->getWindow()->setView(currentView);
+    }
+
+    if (event.mouseWheelScroll.delta < 0) {
+      sf::View currentView = this->getWindow()->getView();
+      currentView.move(0.f, +40.f);
+      this->getWindow()->setView(currentView);
+    }
+  }
+
   return;
 }
 
