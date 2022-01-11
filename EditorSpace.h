@@ -27,7 +27,6 @@ public:
   sf::Clock clock;
 
   GlobalConfig config;
-  sf::RenderWindow *window;
 
   EditorSpace(std::string &, GlobalConfig &, sf::RenderWindow *);
   std::string getBufferText();
@@ -35,8 +34,6 @@ public:
   void pollUserEvents(sf::Event &);
   void pollKeyboard(int);
   void drawOnScreen(sf::RenderWindow &);
-
-  sf::RenderWindow *getWindow ();
 };
 
 #endif

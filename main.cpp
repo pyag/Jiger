@@ -7,7 +7,6 @@
 #include "FileOperations.h"
 #include "GlobalConfigs.h"
 
-
 std::string bufferText;
 GlobalConfig globalEditorConfig;
 
@@ -20,9 +19,10 @@ sf::Color blue(0, 0, 255);
 
 int main() {
   sf::RenderWindow window(sf::VideoMode(800, 600), "Jiger");
-  EditorSpace editor(bufferText, globalEditorConfig);
-  editor.setPosition(10.0f, 10.0f);
-  editor.setSize(700.0f, 200.0f);
+
+  EditorSpace editor(bufferText, globalEditorConfig, &window);
+  editor.setPosition(0.0f, 0.0f);
+  editor.setSize(window.getSize().x, window.getSize().y);
   editor.fillColor(bgColor);
 
   while (window.isOpen()) {

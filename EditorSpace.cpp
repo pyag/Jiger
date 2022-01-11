@@ -1,6 +1,6 @@
 #include "EditorSpace.h"
 
-EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config, sf::RenderWindow *window) {
+EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config, sf::RenderWindow *window): Div(window) {
   this->bufferText = bufferText;
   this->cursorIndex = 0;
   this->showCursor = true;
@@ -10,7 +10,6 @@ EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config, sf::Ren
 
   this->config = config;
   this->langSelected = PlainText;
-  this->window = window;
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
@@ -80,16 +79,11 @@ void EditorSpace::pollKeyboard (int unicode) {
 }
 
 void EditorSpace::pollUserEvents (sf::Event &event) {
-  if (event.type == sf::Event::Resized) {
-    // Adjust editor size
-    this->setSize(this->getWindow()->getSize().x, this->getWindow()->getSize().y);
+  Div::pollEvents(event);
 
-    // Adjusting editor view
-    sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
-    this->getWindow()->setView(sf::View(visibleArea));
-    return;
-  }
-
+  /**
+   * Below are Editor specific user events
+   **/
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
     this->showCursor = true;
     this->clock.restart();
@@ -151,20 +145,6 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     this->showCursor = true;
     this->clock.restart();
     this->pollKeyboard(event.text.unicode);  
-  }
-
-  if (event.type == sf::Event::MouseWheelScrolled) {
-    if (event.mouseWheelScroll.delta > 0) {
-      sf::View currentView = this->getWindow()->getView();
-      currentView.move(0.f, -40.f);
-      this->getWindow()->setView(currentView);
-    }
-
-    if (event.mouseWheelScroll.delta < 0) {
-      sf::View currentView = this->getWindow()->getView();
-      currentView.move(0.f, +40.f);
-      this->getWindow()->setView(currentView);
-    }
   }
 
   return;
@@ -285,8 +265,4 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   // if (this->cursor.getPosition().y + this->cursor.height > this->getPosition().y + this->height) {
   //   std::cout << "Scroll!!!\n";
   // }
-}
-
-sf::RenderWindow *EditorSpace::getWindow () {
-  return this->window;
 }
