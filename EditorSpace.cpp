@@ -10,7 +10,7 @@ EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config, sf::Ren
 
   this->config = config;
   this->langSelected = PlainText;
-  this->hideLineNumber = true;
+  this->hideLineNumber = false;
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
@@ -181,6 +181,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
 
   if (!(this->hideLineNumber)) {
     XTextOffset = this->getXTextOffset();
+    this->displayLineNumber(this->wordsInLine.size());
   }
 
   xWordPosition = XTextOffset;
@@ -201,11 +202,6 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   this->wordsInLine.clear();
   Parser parser(this->bufferText);
   while (parser.hasNextToken()) {
-    
-    if (!(this->hideLineNumber)) {
-      this->displayLineNumber(lineCount);
-    }
-
     wordText = parser.getToken();
 
     ColorComponent colorRgb = wordHighlighter(wordText, languageSelected);
@@ -293,15 +289,9 @@ int EditorSpace::getXTextOffset () {
   return (lineCountDigits + breakPointMarkWidth + blockFoldingMarkWidth);
 }
 
-void EditorSpace::displayLineNumber (int lineNumber) {
-  int xNumPos = this->config.getBreakPointMarkWidth();
-  int yNumPos = lineNumber * this->config.getWordHeight();
-
-  // 1-based line numbers;
-  lineNumber++;
-
+void EditorSpace::displayLineNumber (int lineCount) {
+  int xNumPos, yNumPos;
   sf::Vector2f parentDivPos = Div::getPosition();
-  std::vector <char> digits;
   sf::Text num;
   sf::Font editorFont = this->config.getFont();
   sf::Color lineNumberColor(
@@ -310,25 +300,26 @@ void EditorSpace::displayLineNumber (int lineNumber) {
     this->config.getLineNumberColor().b
   );
 
-  while (lineNumber) {
-    digits.push_back((char)((lineNumber % 10) + '0'));
-    lineNumber /= 10;
-  }
-
   num.setFont(editorFont);
   num.setCharacterSize(this->config.getFontSize());
   num.setColor(lineNumberColor);
 
-  for (int i = digits.size() - 1; i >= 0; i--) {
-    num.setString(digits[i]);
-    num.setPosition(
-      sf::Vector2f(
-        parentDivPos.x + (float)(xNumPos++) * this->config.getWordWidth(), 
-        parentDivPos.y + (float)yNumPos
-      )
-    );
+  for (int line = 0; line < lineCount; line++) {
+    
+    std::string lineStr = std::to_string(line + 1);
+    xNumPos = this->config.getBreakPointMarkWidth();
+    yNumPos = line * this->config.getWordHeight();
 
-    Div::getWindow()->draw(num);
-    digits.clear();
+    for (int i = 0; i < lineStr.length(); i++) {
+      num.setString(lineStr[i]);
+      num.setPosition(
+        sf::Vector2f(
+          parentDivPos.x + (float)(xNumPos++) * this->config.getWordWidth(), 
+          parentDivPos.y + (float)yNumPos
+        )
+      );
+
+      Div::getWindow()->draw(num);
+    }
   }
 }
