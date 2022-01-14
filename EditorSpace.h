@@ -25,6 +25,7 @@ public:
   Div cursor;
   bool showCursor;
   sf::Clock clock;
+  bool hideLineNumber;
 
   GlobalConfig config;
 
@@ -34,6 +35,7 @@ public:
   void pollUserEvents(sf::Event &);
   void pollKeyboard(int);
   void drawOnScreen(sf::RenderWindow &);
+  int getXTextOffset();
 };
 
 #endif

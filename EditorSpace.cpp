@@ -10,6 +10,7 @@ EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config, sf::Ren
 
   this->config = config;
   this->langSelected = PlainText;
+  this->hideLineNumber = false;
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
@@ -171,17 +172,21 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   ProgLang languageSelected = this->langSelected;
 
   int xWordPosition, yWordPosition, xCursorPosition, yCursorPosition;
+  int XTextOffset, YTextOffset;
   int charIndex, lineCount;
   std::string wordText;
 
-  xWordPosition = 0;
-  yWordPosition = 0;
+  YTextOffset = 0;
+  XTextOffset = this->getXTextOffset();
+
+  xWordPosition = XTextOffset;
+  yWordPosition = YTextOffset;
   charIndex = 0;
   lineCount = 0;
 
   // Cursor display settings
-  xCursorPosition = 0;
-  yCursorPosition = 0;
+  xCursorPosition = XTextOffset;
+  yCursorPosition = YTextOffset;
 
   word.setFont(editorFont);
   word.setCharacterSize(this->config.getFontSize());
@@ -192,6 +197,10 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   this->wordsInLine.clear();
   Parser parser(this->bufferText);
   while (parser.hasNextToken()) {
+    if (!(this->hideLineNumber)) {
+      // this->displayLineNumber(lineCount);
+    }
+
     wordText = parser.getToken();
 
     ColorComponent colorRgb = wordHighlighter(wordText, languageSelected);
@@ -203,7 +212,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
       lineCount++;
       this->wordsInLine.push_back(xWordPosition);
 
-      xWordPosition = 0;
+      xWordPosition = XTextOffset;
       yWordPosition += this->config.getWordHeight();
 
       // Setting cursor to newline
@@ -257,12 +266,24 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   if (this->showCursor) {
     this->cursor.drawOnScreen(window);
   }
+}
 
+int EditorSpace::getXTextOffset () {
+  int lineCount = this->wordsInLine.size();
+  int lineCountDigits = 0;
 
-  // std::cout << "Last cursor pos y = " << this->cursor.getPosition().y + this->cursor.height << "\n";
-  // std::cout << "editor last point pos y = " << this->getPosition().y + this->height << "\n";
+  while (lineCount) {
+    lineCountDigits++;
+    lineCount /= 10;
+  }
 
-  // if (this->cursor.getPosition().y + this->cursor.height > this->getPosition().y + this->height) {
-  //   std::cout << "Scroll!!!\n";
-  // }
+  if (lineCount < this->config.getLineNumberThresholdWidth()) {
+    lineCount = this->config.getLineNumberThresholdWidth();
+  }
+
+  // These two features below may be used in future.
+  int breakPointMarkWidth = this->config.getBreakPointMarkWidth();
+  int blockFoldingMarkWidth = this->config.getBlockFoldingMarkWidth();
+
+  return (lineCountDigits + breakPointMarkWidth + blockFoldingMarkWidth);
 }

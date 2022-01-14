@@ -35,6 +35,9 @@ struct ColorComponent {
 struct GlobalConfig {
   int fontSize;
   float wordHeight, wordWidth;
+  int breakPointMarkWidth, blockFoldingMarkWidth;
+  int lineNumberThresholdWidth;
+
   int cursorBlinkTimeInSeconds;
 
   float cursorHeight, cursorWidth;
@@ -50,6 +53,9 @@ struct GlobalConfig {
   void setFontSize (int);
   void setWordHeight (float);
   void setWordWidth (float);
+  void setBreakPointMarkWidth (int);
+  void setBlockFoldingMarkWidth (int);
+  void setLineNumberThresholdWidth (int);
   void setCursorBlinkTimeInSeconds (int);
   void setCursorHeight (float);
   void setCursorWidth (float);
@@ -61,6 +67,9 @@ struct GlobalConfig {
   int getFontSize ();
   float getWordHeight ();
   float getWordWidth ();
+  int getBreakPointMarkWidth ();
+  int getBlockFoldingMarkWidth ();
+  int getLineNumberThresholdWidth ();
   int getCursorBlinkTimeInSeconds ();
   float getCursorHeight ();
   float getCursorWidth ();

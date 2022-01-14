@@ -15,13 +15,18 @@ GlobalConfig::GlobalConfig () {
   this->wordHeight = 19.0f;
   this->wordWidth = 10.0f;
 
+  this->breakPointMarkWidth = 2;
+  this->blockFoldingMarkWidth = 2;
+
+  this->lineNumberThresholdWidth = 3;
+
   this->cursorBlinkTimeInSeconds = 550;
 
   this->cursorHeight = 22.0f;
   this->cursorWidth = 2.0f;
 
   this->setFontColor(200, 200, 200);
-  this->setBgColor(30, 30, 30);
+  this->setBgColor(28, 28, 28);
   this->setFont("consola");
 }
 
@@ -36,6 +41,18 @@ void GlobalConfig::setWordHeight (float height) {
 
 void GlobalConfig::setWordWidth (float width) {
   this->wordWidth = width;
+}
+
+void GlobalConfig::setBreakPointMarkWidth (int width) {
+  this->breakPointMarkWidth = width;
+}
+
+void GlobalConfig::setBlockFoldingMarkWidth (int width) {
+  this->blockFoldingMarkWidth = width;
+}
+
+void GlobalConfig::setLineNumberThresholdWidth (int width) {
+  this->lineNumberThresholdWidth = width;
 }
 
 void GlobalConfig::setCursorBlinkTimeInSeconds (int seconds) {
@@ -81,6 +98,18 @@ float GlobalConfig::getWordHeight () {
 
 float GlobalConfig::getWordWidth () {
   return this->wordWidth;
+}
+
+int GlobalConfig::getBreakPointMarkWidth () {
+  return this->breakPointMarkWidth;
+}
+
+int GlobalConfig::getBlockFoldingMarkWidth () {
+  return this->blockFoldingMarkWidth;
+}
+
+int GlobalConfig::getLineNumberThresholdWidth () {
+  return this->lineNumberThresholdWidth;
 }
 
 int GlobalConfig::getCursorBlinkTimeInSeconds () {
