@@ -278,8 +278,8 @@ int EditorSpace::getXTextOffset () {
     lineCount /= 10;
   }
 
-  if (lineCount < this->config.getLineNumberThresholdWidth()) {
-    lineCount = this->config.getLineNumberThresholdWidth();
+  if (lineCountDigits < this->config.getLineNumberThresholdWidth()) {
+    lineCountDigits = this->config.getLineNumberThresholdWidth();
   }
 
   // These two features below may be used in future.
@@ -290,7 +290,7 @@ int EditorSpace::getXTextOffset () {
 }
 
 void EditorSpace::displayLineNumber (int lineCount) {
-  int xNumPos, yNumPos;
+  int xNumPos, yNumPos, xNumPosPadding;
   sf::Vector2f parentDivPos = Div::getPosition();
   sf::Text num;
   sf::Font editorFont = this->config.getFont();
@@ -300,21 +300,34 @@ void EditorSpace::displayLineNumber (int lineCount) {
     this->config.getLineNumberColor().b
   );
 
+  int lineNumThresh = this->config.getLineNumberThresholdWidth();
+
   num.setFont(editorFont);
   num.setCharacterSize(this->config.getFontSize());
   num.setColor(lineNumberColor);
+
+  int digitCount = 0;
+  for (int tmpNum = lineCount; tmpNum;) {
+    digitCount++;
+    tmpNum /= 10;
+  }
+
+  if (digitCount > lineNumThresh) {
+    lineNumThresh = lineNumThresh;
+  }
 
   for (int line = 0; line < lineCount; line++) {
     
     std::string lineStr = std::to_string(line + 1);
     xNumPos = this->config.getBreakPointMarkWidth();
     yNumPos = line * this->config.getWordHeight();
+    xNumPosPadding = lineNumThresh - lineStr.length() > 0 ? lineNumThresh - lineStr.length() : 0;
 
     for (int i = 0; i < lineStr.length(); i++) {
       num.setString(lineStr[i]);
       num.setPosition(
         sf::Vector2f(
-          parentDivPos.x + (float)(xNumPos++) * this->config.getWordWidth(), 
+          parentDivPos.x + (float)(xNumPosPadding + xNumPos++) * this->config.getWordWidth(),
           parentDivPos.y + (float)yNumPos
         )
       );

@@ -27,7 +27,7 @@ GlobalConfig::GlobalConfig () {
 
   this->setFontColor(200, 200, 200);
   this->setBgColor(28, 28, 28);
-  this->setLineNumberColor(90, 90, 90);
+  this->setLineNumberColor(120, 120, 120);
 
   this->setFont("consola");
 }
