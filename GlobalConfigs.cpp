@@ -15,8 +15,8 @@ GlobalConfig::GlobalConfig () {
   this->wordHeight = 19.0f;
   this->wordWidth = 10.0f;
 
-  this->breakPointMarkWidth = 2;
-  this->blockFoldingMarkWidth = 2;
+  this->breakPointMarkWidth = 3;
+  this->blockFoldingMarkWidth = 3;
 
   this->lineNumberThresholdWidth = 3;
 
@@ -27,6 +27,8 @@ GlobalConfig::GlobalConfig () {
 
   this->setFontColor(200, 200, 200);
   this->setBgColor(28, 28, 28);
+  this->setLineNumberColor(90, 90, 90);
+
   this->setFont("consola");
 }
 
@@ -77,6 +79,12 @@ void GlobalConfig::setBgColor (int r, int g, int b) {
   this->bgColor.r = r;
   this->bgColor.g = g;
   this->bgColor.b = b;
+}
+
+void GlobalConfig::setLineNumberColor (int r, int g, int b) {
+  this->lineNumberColor.r = r;
+  this->lineNumberColor.g = g;
+  this->lineNumberColor.b = b;
 }
 
 void GlobalConfig::setFont (std::string fontName) {
@@ -130,6 +138,10 @@ ColorComponent GlobalConfig::getFontColor () {
 
 ColorComponent GlobalConfig::getBgColor () {
   return this->bgColor;
+}
+
+ColorComponent GlobalConfig::getLineNumberColor () {
+  return this->lineNumberColor;
 }
 
 sf::Font& GlobalConfig::getFont () {
