@@ -28,6 +28,7 @@ GlobalConfig::GlobalConfig () {
   this->setFontColor(200, 200, 200);
   this->setBgColor(28, 28, 28);
   this->setLineNumberColor(120, 120, 120);
+  this->setCurLineNumberColor(200, 200, 200);
 
   this->setFont("consola");
 }
@@ -85,6 +86,12 @@ void GlobalConfig::setLineNumberColor (int r, int g, int b) {
   this->lineNumberColor.r = r;
   this->lineNumberColor.g = g;
   this->lineNumberColor.b = b;
+}
+
+void GlobalConfig::setCurLineNumberColor (int r, int g, int b) {
+  this->curLineNumberColor.r = r;
+  this->curLineNumberColor.g = g;
+  this->curLineNumberColor.b = b;
 }
 
 void GlobalConfig::setFont (std::string fontName) {
@@ -147,6 +154,10 @@ ColorComponent GlobalConfig::getBgColor () {
 
 ColorComponent GlobalConfig::getLineNumberColor () {
   return this->lineNumberColor;
+}
+
+ColorComponent GlobalConfig::getCurLineNumberColor () {
+  return this->curLineNumberColor;
 }
 
 sf::Font& GlobalConfig::getFont () {

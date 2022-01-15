@@ -14,9 +14,12 @@ public:
 
   Div () {}
   Div (sf::RenderWindow *);
+  
   void setSize(float, float, bool percentage = false);
   void setPosition(float, float);
   sf::Vector2f getPosition();
+  sf::Vector2f getSize();
+
   void fillColor(const sf::Color &);
   void drawOnScreen(sf::RenderWindow &);
 

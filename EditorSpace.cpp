@@ -85,6 +85,32 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
   /**
    * Below are Editor specific user events
    **/
+
+  // Mouse Scroll Events on Editor
+  if (event.type == sf::Event::MouseWheelScrolled) {
+
+    // Mouse scroll up
+    if (event.mouseWheelScroll.delta > 0) {
+      sf::View currentView = Div::getWindow()->getView();
+
+      float viewXPos = currentView.getCenter().x - currentView.getSize().x / 2.0f;
+      float viewYPos = currentView.getCenter().y - currentView.getSize().y / 2.0f;
+
+      // Stop scroll up when reaching top of the text
+      if (viewYPos > Div::getPosition().y) {
+        currentView.move(0.f, -40.f);
+        Div::getWindow()->setView(currentView);
+      }
+    }
+
+    // Mouse scroll up
+    if (event.mouseWheelScroll.delta < 0) {
+      sf::View currentView = Div::getWindow()->getView();
+      currentView.move(0.f, 40.f);
+      Div::getWindow()->setView(currentView);
+    }
+  }
+
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
     this->showCursor = true;
     this->clock.restart();
@@ -176,11 +202,11 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   int charIndex, lineCount;
   std::string wordText;
 
-  YTextOffset = 0;
-  XTextOffset = 0;
+  YTextOffset = Div::getPosition().y;
+  XTextOffset = Div::getPosition().x;
 
   if (!(this->hideLineNumber)) {
-    XTextOffset = this->getXTextOffset();
+    XTextOffset += this->getXTextOffset();
     this->displayLineNumber(this->wordsInLine.size());
   }
 
@@ -267,6 +293,18 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   if (this->showCursor) {
     this->cursor.drawOnScreen(window);
   }
+
+  // Updating Editor Space Div size, if required
+  int totalLines = this->wordsInLine.size();
+
+  int newXSize = Div::getSize().x;  
+  int newYSize = totalLines * this->config.getWordHeight();
+
+  if (newYSize < Div::getWindow()->getSize().y) {
+    newYSize = Div::getWindow()->getSize().y;
+  }
+
+  Div::setSize(newXSize, newYSize);
 }
 
 int EditorSpace::getXTextOffset () {
@@ -294,17 +332,23 @@ void EditorSpace::displayLineNumber (int lineCount) {
   sf::Vector2f parentDivPos = Div::getPosition();
   sf::Text num;
   sf::Font editorFont = this->config.getFont();
+
   sf::Color lineNumberColor(
     this->config.getLineNumberColor().r,
     this->config.getLineNumberColor().g,
     this->config.getLineNumberColor().b
   );
 
+  sf::Color curLineNumberColor(
+    this->config.getCurLineNumberColor().r,
+    this->config.getCurLineNumberColor().g,
+    this->config.getCurLineNumberColor().b
+  );
+
   int lineNumThresh = this->config.getLineNumberThresholdWidth();
 
   num.setFont(editorFont);
   num.setCharacterSize(this->config.getFontSize());
-  num.setColor(lineNumberColor);
 
   int digitCount = 0;
   for (int tmpNum = lineCount; tmpNum;) {
@@ -322,6 +366,12 @@ void EditorSpace::displayLineNumber (int lineCount) {
     xNumPos = this->config.getBreakPointMarkWidth();
     yNumPos = line * this->config.getWordHeight();
     xNumPosPadding = lineNumThresh - lineStr.length() > 0 ? lineNumThresh - lineStr.length() : 0;
+
+    if (line == this->curLine) {
+      num.setColor(curLineNumberColor);
+    } else {
+      num.setColor(lineNumberColor);
+    }
 
     for (int i = 0; i < lineStr.length(); i++) {
       num.setString(lineStr[i]);

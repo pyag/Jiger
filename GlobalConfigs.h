@@ -45,6 +45,7 @@ struct GlobalConfig {
   ColorComponent fontColor;
   ColorComponent bgColor;
   ColorComponent lineNumberColor;
+  ColorComponent curLineNumberColor;
 
   sf::Font font;
 
@@ -63,6 +64,7 @@ struct GlobalConfig {
   void setFontColor (int, int, int);
   void setBgColor (int, int, int);
   void setLineNumberColor (int, int, int);
+  void setCurLineNumberColor (int, int, int);
   void setFont (std::string);
 
   // Getters
@@ -78,6 +80,7 @@ struct GlobalConfig {
   ColorComponent getFontColor ();
   ColorComponent getBgColor ();
   ColorComponent getLineNumberColor ();
+  ColorComponent getCurLineNumberColor ();
   sf::Font& getFont ();
 };
 

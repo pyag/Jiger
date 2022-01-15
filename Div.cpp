@@ -5,6 +5,7 @@ Div::Div (sf::RenderWindow *window) {
 }
 
 void Div::pollEvents (sf::Event &event) {
+
   // Resizing Div on window
   if (event.type == sf::Event::Resized) {
     // Adjust Div size
@@ -15,27 +16,17 @@ void Div::pollEvents (sf::Event &event) {
     this->getWindow()->setView(sf::View(visibleArea));
     return;
   }
-
-  // Mouse Scroll Events on Div in window
-  if (event.type == sf::Event::MouseWheelScrolled) {
-
-    // Mouse scroll up
-    if (event.mouseWheelScroll.delta > 0) {
-      sf::View currentView = this->getWindow()->getView();
-      currentView.move(0.f, -40.f);
-      this->getWindow()->setView(currentView);
-    }
-
-    // Mouse scroll up
-    if (event.mouseWheelScroll.delta < 0) {
-      sf::View currentView = this->getWindow()->getView();
-      currentView.move(0.f, 40.f);
-      this->getWindow()->setView(currentView);
-    }
-
-  }
 }
 
+void Div::fillColor (const sf::Color &divColor) {
+  this->divBox.setFillColor(divColor);
+}
+
+void Div::drawOnScreen (sf::RenderWindow &window) {
+  window.draw(this->divBox);
+}
+
+// Setters
 void Div::setSize (float width, float height, bool percentage) {
   this->width = width;
   this->height = height;
@@ -48,16 +39,13 @@ void Div::setPosition (float x, float y) {
   this->divBox.setPosition(sf::Vector2f(x, y));
 }
 
+// Getters
 sf::Vector2f Div::getPosition () {
   return this->divBox.getPosition();
 }
 
-void Div::fillColor (const sf::Color &divColor) {
-  this->divBox.setFillColor(divColor);
-}
-
-void Div::drawOnScreen (sf::RenderWindow &window) {
-  window.draw(this->divBox);
+sf::Vector2f Div::getSize () {
+  return this->divBox.getSize();
 }
 
 sf::RenderWindow *Div::getWindow () {
