@@ -10,10 +10,10 @@ ColorComponent::ColorComponent (int r, int g, int b) {
 
 GlobalConfig::GlobalConfig () {
   // Global constructor sets up the default values
-  this->fontSize = 18;
+  this->fontSize = 15;
 
   this->wordHeight = 19.0f;
-  this->wordWidth = 10.0f;
+  this->wordWidth = 8.8f;
 
   this->breakPointMarkWidth = 3;
   this->blockFoldingMarkWidth = 3;
@@ -93,6 +93,11 @@ void GlobalConfig::setFont (std::string fontName) {
     std::cout << "Font cannot be loaded!\n";
     exit(1);
   }
+
+  // To remove blurry font in SFML
+  // Refer: https://en.sfml-dev.org/forums/index.php?topic=21058.0
+  sf::Texture &fontTexture = const_cast <sf::Texture &> (this->font.getTexture(this->getFontSize()));
+  fontTexture.setSmooth(false);
 }
 
 // Getter

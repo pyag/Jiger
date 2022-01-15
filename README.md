@@ -16,4 +16,4 @@ Editor
 Refer the buildCommand.txt file.
 
 #### Screenshot
-![Ubuntu Screenshot](/screenshots/ubuntu.png?raw=true "Ubuntu Screenshot")
+![Ubuntu Screenshot](/screenshots/ubuntu1.png?raw=true "Ubuntu Screenshot")
