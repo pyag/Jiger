@@ -37,6 +37,7 @@ public:
   void drawOnScreen(sf::RenderWindow &);
   int getXTextOffset();
   void displayLineNumber(int);
+  int getTotalLineCount();
 };
 
 #endif

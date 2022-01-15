@@ -15,7 +15,7 @@ GlobalConfig::GlobalConfig () {
   this->wordHeight = 19.0f;
   this->wordWidth = 8.8f;
 
-  this->breakPointMarkWidth = 3;
+  this->breakPointMarkWidth = 2;
   this->blockFoldingMarkWidth = 3;
 
   this->lineNumberThresholdWidth = 3;

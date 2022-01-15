@@ -89,26 +89,34 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
   // Mouse Scroll Events on Editor
   if (event.type == sf::Event::MouseWheelScrolled) {
 
+    sf::View currentView = Div::getWindow()->getView();
+    float viewYPosTop = currentView.getCenter().y - currentView.getSize().y / 2.0f;
+    float viewYPosBottom = currentView.getCenter().y + currentView.getSize().y / 2.0f;
+
     // Mouse scroll up
     if (event.mouseWheelScroll.delta > 0) {
-      sf::View currentView = Div::getWindow()->getView();
-
-      float viewXPos = currentView.getCenter().x - currentView.getSize().x / 2.0f;
-      float viewYPos = currentView.getCenter().y - currentView.getSize().y / 2.0f;
-
       // Stop scroll up when reaching top of the text
-      if (viewYPos > Div::getPosition().y) {
+      if (viewYPosTop > Div::getPosition().y) {
         currentView.move(0.f, -40.f);
-        Div::getWindow()->setView(currentView);
       }
     }
 
     // Mouse scroll up
     if (event.mouseWheelScroll.delta < 0) {
-      sf::View currentView = Div::getWindow()->getView();
-      currentView.move(0.f, 40.f);
-      Div::getWindow()->setView(currentView);
+      // Stop scroll down below last line of text
+      float scrollDownThreshold = Div::getPosition().y;
+      scrollDownThreshold += ((this->getTotalLineCount() - 1) * this->config.getWordHeight());
+      scrollDownThreshold += Div::getWindow()->getSize().y;
+
+      if (scrollDownThreshold - viewYPosBottom > 40.0f) {
+        currentView.move(0.f, 40.f);
+      } else {
+        currentView.move(0.f, scrollDownThreshold - viewYPosBottom);        
+      }
     }
+
+    Div::getWindow()->setView(currentView);
+    return;
   }
 
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
@@ -150,7 +158,7 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     this->showCursor = true;
     this->clock.restart();
 
-    if (this->curLine == this->wordsInLine.size() - 1) {
+    if (this->curLine == this->getTotalLineCount() - 1) {
       this->cursorIndex = this->bufferText.length();
       return;
     }
@@ -207,7 +215,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
 
   if (!(this->hideLineNumber)) {
     XTextOffset += this->getXTextOffset();
-    this->displayLineNumber(this->wordsInLine.size());
+    this->displayLineNumber(this->getTotalLineCount());
   }
 
   xWordPosition = XTextOffset;
@@ -295,7 +303,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   }
 
   // Updating Editor Space Div size, if required
-  int totalLines = this->wordsInLine.size();
+  int totalLines = this->getTotalLineCount();
 
   int newXSize = Div::getSize().x;  
   int newYSize = totalLines * this->config.getWordHeight();
@@ -308,7 +316,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
 }
 
 int EditorSpace::getXTextOffset () {
-  int lineCount = this->wordsInLine.size();
+  int lineCount = this->getTotalLineCount();
   int lineCountDigits = 0;
 
   while (lineCount) {
@@ -385,4 +393,8 @@ void EditorSpace::displayLineNumber (int lineCount) {
       Div::getWindow()->draw(num);
     }
   }
+}
+
+int EditorSpace::getTotalLineCount () {
+  return this->wordsInLine.size();
 }
