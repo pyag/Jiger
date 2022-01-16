@@ -35,7 +35,7 @@ public:
   void pollUserEvents(sf::Event &);
   void pollKeyboard(int);
   void drawOnScreen(sf::RenderWindow &);
-  int getXTextOffset();
+  float getXTextOffset();
   void displayLineNumber(int);
   int getTotalLineCount();
 };

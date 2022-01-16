@@ -210,32 +210,29 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   ProgLang languageSelected = this->langSelected;
 
   int xWordPosition, yWordPosition, xCursorPosition, yCursorPosition;
-  int XTextOffset, YTextOffset;
+  float XResetPos;
   int charIndex, lineCount;
   std::string wordText;
 
-  YTextOffset = Div::getPosition().y;
-  XTextOffset = Div::getPosition().x;
+  XResetPos = Div::getPosition().x;
 
   if (!(this->hideLineNumber)) {
-    XTextOffset += this->getXTextOffset();
+    XResetPos += this->getXTextOffset() * this->config.getWordWidth();
     this->displayLineNumber(this->getTotalLineCount());
   }
 
-  xWordPosition = XTextOffset;
-  yWordPosition = YTextOffset;
+  xWordPosition = 0;
+  yWordPosition = Div::getPosition().y;
   charIndex = 0;
   lineCount = 0;
 
   // Cursor display settings
-  xCursorPosition = XTextOffset;
-  yCursorPosition = YTextOffset;
+  xCursorPosition = 0;
+  yCursorPosition = Div::getPosition().y;
 
   word.setFont(editorFont);
   word.setCharacterSize(this->config.getFontSize());
   word.setColor(fontColor);
-
-  sf::Vector2f parentDivPos = Div::getPosition();
 
   this->wordsInLine.clear();
   Parser parser(this->bufferText);
@@ -251,7 +248,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
       lineCount++;
       this->wordsInLine.push_back(xWordPosition);
 
-      xWordPosition = XTextOffset;
+      xWordPosition = 0;
       yWordPosition += this->config.getWordHeight();
 
       // Setting cursor to newline
@@ -266,8 +263,8 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
     }
 
     for (int i = 0; i < wordText.length(); i++) {
-      float x = parentDivPos.x + (float)(xWordPosition++) * this->config.getWordWidth();
-      float y = parentDivPos.y + (float)yWordPosition;
+      float x = XResetPos + (float)(xWordPosition++) * this->config.getWordWidth();
+      float y = (float)yWordPosition;
       charIndex++;
       word.setString(wordText[i]);
       word.setPosition(sf::Vector2f(x, y));
@@ -290,8 +287,8 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   this->cursor.setSize(this->config.getCursorWidth(), this->config.getCursorHeight());
   this->cursor.fillColor(fontColor);
   this->cursor.setPosition(
-    parentDivPos.x + (float)(xCursorPosition) * this->config.getWordWidth(),
-    parentDivPos.y + (float)yCursorPosition + 2.0f
+    XResetPos + (float)(xCursorPosition) * this->config.getWordWidth(),
+    (float)yCursorPosition + 2.0f
   );
 
   if (this->clock.getElapsedTime() > sf::milliseconds(this->config.getCursorBlinkTimeInSeconds())) {
@@ -306,7 +303,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   // Updating Editor Space Div size, if required
   int totalLines = this->getTotalLineCount();
 
-  int newXSize = Div::getSize().x;  
+  int newXSize = Div::getSize().x;
   int newYSize = totalLines * this->config.getWordHeight();
 
   if (newYSize < Div::getWindow()->getSize().y) {
@@ -316,7 +313,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   Div::setSize(newXSize, newYSize);
 }
 
-int EditorSpace::getXTextOffset () {
+float EditorSpace::getXTextOffset () {
   int lineCount = this->getTotalLineCount();
   int lineCountDigits = 0;
 
@@ -330,14 +327,14 @@ int EditorSpace::getXTextOffset () {
   }
 
   // These two features below may be used in future.
-  int breakPointMarkWidth = this->config.getBreakPointMarkWidth();
-  int blockFoldingMarkWidth = this->config.getBlockFoldingMarkWidth();
+  float breakPointMarkWidth = this->config.getBreakPointMarkWidth();
+  float blockFoldingMarkWidth = this->config.getBlockFoldingMarkWidth();
 
   return (lineCountDigits + breakPointMarkWidth + blockFoldingMarkWidth);
 }
 
 void EditorSpace::displayLineNumber (int lineCount) {
-  int xNumPos, yNumPos, xNumPosPadding;
+  float xNumPos, yNumPos, xNumPosPadding;
   sf::Vector2f parentDivPos = Div::getPosition();
   sf::Text num;
   sf::Font editorFont = this->config.getFont();

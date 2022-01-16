@@ -15,8 +15,8 @@ GlobalConfig::GlobalConfig () {
   this->wordHeight = 19.0f;
   this->wordWidth = 8.8f;
 
-  this->breakPointMarkWidth = 2;
-  this->blockFoldingMarkWidth = 3;
+  this->breakPointMarkWidth = 2.0f;
+  this->blockFoldingMarkWidth = 3.0f;
 
   this->lineNumberThresholdWidth = 3;
 
@@ -46,11 +46,11 @@ void GlobalConfig::setWordWidth (float width) {
   this->wordWidth = width;
 }
 
-void GlobalConfig::setBreakPointMarkWidth (int width) {
+void GlobalConfig::setBreakPointMarkWidth (float width) {
   this->breakPointMarkWidth = width;
 }
 
-void GlobalConfig::setBlockFoldingMarkWidth (int width) {
+void GlobalConfig::setBlockFoldingMarkWidth (float width) {
   this->blockFoldingMarkWidth = width;
 }
 
@@ -120,11 +120,11 @@ float GlobalConfig::getWordWidth () {
   return this->wordWidth;
 }
 
-int GlobalConfig::getBreakPointMarkWidth () {
+float GlobalConfig::getBreakPointMarkWidth () {
   return this->breakPointMarkWidth;
 }
 
-int GlobalConfig::getBlockFoldingMarkWidth () {
+float GlobalConfig::getBlockFoldingMarkWidth () {
   return this->blockFoldingMarkWidth;
 }
 
