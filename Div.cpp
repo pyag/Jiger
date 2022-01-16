@@ -6,16 +6,6 @@ Div::Div (sf::RenderWindow *window) {
 
 void Div::pollEvents (sf::Event &event) {
 
-  // Resizing Div on window
-  if (event.type == sf::Event::Resized) {
-    // Adjust Div size
-    this->setSize(this->getWindow()->getSize().x, this->getWindow()->getSize().y);
-
-    // Adjusting Div view
-    sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
-    this->getWindow()->setView(sf::View(visibleArea));
-    return;
-  }
 }
 
 void Div::fillColor (const sf::Color &divColor) {

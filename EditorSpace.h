@@ -29,6 +29,8 @@ public:
 
   GlobalConfig config;
 
+  sf::View watchableView;
+
   EditorSpace(std::string &, GlobalConfig &, sf::RenderWindow *);
   std::string getBufferText();
   void setLanguage(ProgLang);
@@ -38,6 +40,9 @@ public:
   float getXTextOffset();
   void displayLineNumber(int);
   int getTotalLineCount();
+
+  void setWatchableView (sf::View &);
+  sf::View &getWatchableView ();
 };
 
 #endif

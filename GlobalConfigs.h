@@ -38,6 +38,9 @@ struct GlobalConfig {
   float breakPointMarkWidth, blockFoldingMarkWidth;
   int lineNumberThresholdWidth;
 
+  float editorXPos, editorYPos;
+  float editorXSize, editorYSize;
+
   int cursorBlinkTimeInSeconds;
 
   float cursorHeight, cursorWidth;
@@ -58,6 +61,12 @@ struct GlobalConfig {
   void setBreakPointMarkWidth (float);
   void setBlockFoldingMarkWidth (float);
   void setLineNumberThresholdWidth (int);
+
+  void setEditorXPos (float);
+  void setEditorYPos (float);
+  void setEditorXSize (float);
+  void setEditorYSize (float);
+
   void setCursorBlinkTimeInSeconds (int);
   void setCursorHeight (float);
   void setCursorWidth (float);
@@ -74,6 +83,12 @@ struct GlobalConfig {
   float getBreakPointMarkWidth ();
   float getBlockFoldingMarkWidth ();
   int getLineNumberThresholdWidth ();
+
+  float getEditorXPos ();
+  float getEditorYPos ();
+  float getEditorXSize ();
+  float getEditorYSize ();
+
   int getCursorBlinkTimeInSeconds ();
   float getCursorHeight ();
   float getCursorWidth ();

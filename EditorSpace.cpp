@@ -86,10 +86,36 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
    * Below are Editor specific user events
    **/
 
+  // Resizing Div on window
+  if (event.type == sf::Event::Resized) {
+    // Adjust Div size
+    // this->setSize(Div::getWindow()->getSize().x, Div::getWindow()->getSize().y);
+
+    // Adjusting Div view
+    sf::View editorView = this->getWatchableView();
+
+    editorView.reset(sf::FloatRect(
+      this->config.getEditorXPos(),
+      this->config.getEditorYPos(),
+      this->config.getEditorXSize(),
+      this->config.getEditorYSize()
+    ));
+
+    editorView.setViewport(sf::FloatRect(
+      this->config.getEditorXPos() / event.size.width,
+      this->config.getEditorYPos() / event.size.height,
+      this->config.getEditorXSize() / event.size.width,
+      this->config.getEditorYSize() / event.size.height
+    ));
+
+    this->setWatchableView(editorView);
+    Div::getWindow()->setView(editorView);
+    return;
+  }
+
   // Mouse Scroll Events on Editor
   if (event.type == sf::Event::MouseWheelScrolled) {
-
-    sf::View currentView = Div::getWindow()->getView();
+    sf::View currentView = this->getWatchableView();
     float viewYPosTop = currentView.getCenter().y - currentView.getSize().y / 2.0f;
     float viewYPosBottom = currentView.getCenter().y + currentView.getSize().y / 2.0f;
 
@@ -97,7 +123,8 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     if (event.mouseWheelScroll.delta > 0) {
       // Stop scroll up when reaching top of the text
 
-      float scrollUpThreshold = Div::getPosition().x;
+      float scrollUpThreshold = this->config.getEditorYPos();
+
       if (viewYPosTop - scrollUpThreshold > 40.0f) {
         currentView.move(0.f, -40.f);
       } else {
@@ -105,12 +132,12 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
       }
     }
 
-    // Mouse scroll up
+    // Mouse scroll down
     if (event.mouseWheelScroll.delta < 0) {
       // Stop scroll down below last line of text
-      float scrollDownThreshold = Div::getPosition().y;
+      float scrollDownThreshold = this->config.getEditorYPos();
       scrollDownThreshold += ((this->getTotalLineCount() - 1) * this->config.getWordHeight());
-      scrollDownThreshold += Div::getWindow()->getSize().y;
+      scrollDownThreshold += this->config.getEditorYSize();
 
       if (scrollDownThreshold - viewYPosBottom > 40.0f) {
         currentView.move(0.f, 40.f);
@@ -119,6 +146,7 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
       }
     }
 
+    this->setWatchableView(currentView);
     Div::getWindow()->setView(currentView);
     return;
   }
@@ -395,4 +423,12 @@ void EditorSpace::displayLineNumber (int lineCount) {
 
 int EditorSpace::getTotalLineCount () {
   return this->wordsInLine.size();
+}
+
+void EditorSpace::setWatchableView (sf::View &view) {
+  this->watchableView = view;
+}
+
+sf::View &EditorSpace::getWatchableView () {
+  return this->watchableView;
 }

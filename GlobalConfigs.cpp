@@ -20,6 +20,9 @@ GlobalConfig::GlobalConfig () {
 
   this->lineNumberThresholdWidth = 3;
 
+  this->editorXPos = 50.0f;
+  this->editorYPos = 50.0f;
+
   this->cursorBlinkTimeInSeconds = 550;
 
   this->cursorHeight = 22.0f;
@@ -56,6 +59,22 @@ void GlobalConfig::setBlockFoldingMarkWidth (float width) {
 
 void GlobalConfig::setLineNumberThresholdWidth (int width) {
   this->lineNumberThresholdWidth = width;
+}
+
+void GlobalConfig::setEditorXPos (float xPos) {
+  this->editorXPos = xPos;
+}
+
+void GlobalConfig::setEditorYPos (float yPos) {
+  this->editorYPos = yPos;
+}
+
+void GlobalConfig::setEditorXSize (float xSize) {
+  this->editorXSize = xSize;
+}
+
+void GlobalConfig::setEditorYSize (float ySize) {
+  this->editorYSize = ySize;
 }
 
 void GlobalConfig::setCursorBlinkTimeInSeconds (int seconds) {
@@ -130,6 +149,22 @@ float GlobalConfig::getBlockFoldingMarkWidth () {
 
 int GlobalConfig::getLineNumberThresholdWidth () {
   return this->lineNumberThresholdWidth;
+}
+
+float GlobalConfig::getEditorXPos () {
+  return this->editorXPos;
+}
+
+float GlobalConfig::getEditorYPos () {
+  return this->editorYPos;
+}
+
+float GlobalConfig::getEditorXSize () {
+  return this->editorXSize;
+}
+
+float GlobalConfig::getEditorYSize () {
+  return this->editorYSize;
 }
 
 int GlobalConfig::getCursorBlinkTimeInSeconds () {

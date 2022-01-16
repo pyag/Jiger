@@ -18,12 +18,45 @@ sf::Color bgColor(
 sf::Color blue(0, 0, 255);
 
 int main() {
-  sf::RenderWindow window(sf::VideoMode(800, 600), "Jiger");
+  float desktopWidth = sf::VideoMode::getDesktopMode().width;
+  float desktopHeight = sf::VideoMode::getDesktopMode().height;
+
+  float editorWidth = desktopWidth - globalEditorConfig.getEditorXPos();
+  float editorHeight = desktopHeight - globalEditorConfig.getEditorYPos();
+
+  sf::RenderWindow window(sf::VideoMode(desktopWidth, desktopHeight), "Jiger");
+
+  globalEditorConfig.setEditorXSize(editorWidth);
+  globalEditorConfig.setEditorYSize(editorHeight);
 
   EditorSpace editor(bufferText, globalEditorConfig, &window);
-  editor.setPosition(0.0f, 0.0f);
+
+  editor.setPosition(
+    globalEditorConfig.getEditorXPos(),
+    globalEditorConfig.getEditorYPos()
+  );
+
   editor.setSize(window.getSize().x, window.getSize().y);
   editor.fillColor(bgColor);
+
+  sf::View editorView = window.getView();
+
+  editorView.reset(sf::FloatRect(
+    globalEditorConfig.getEditorXPos(),
+    globalEditorConfig.getEditorYPos(),
+    globalEditorConfig.getEditorXSize(),
+    globalEditorConfig.getEditorYSize()
+  ));
+
+  editorView.setViewport(sf::FloatRect(
+    globalEditorConfig.getEditorXPos() / window.getSize().x,
+    globalEditorConfig.getEditorYPos() / window.getSize().y,
+    globalEditorConfig.getEditorXSize() / window.getSize().x,
+    globalEditorConfig.getEditorYSize() / window.getSize().y
+  ));
+
+  editor.setWatchableView(editorView);
+  window.setView(editorView);
 
   while (window.isOpen()) {
     sf::Event event;
