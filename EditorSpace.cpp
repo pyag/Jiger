@@ -96,8 +96,12 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     // Mouse scroll up
     if (event.mouseWheelScroll.delta > 0) {
       // Stop scroll up when reaching top of the text
-      if (viewYPosTop > Div::getPosition().y) {
+
+      float scrollUpThreshold = Div::getPosition().x;
+      if (viewYPosTop - scrollUpThreshold > 40.0f) {
         currentView.move(0.f, -40.f);
+      } else {
+        currentView.move(0.f, scrollUpThreshold - viewYPosTop);
       }
     }
 
@@ -262,14 +266,11 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
     }
 
     for (int i = 0; i < wordText.length(); i++) {
+      float x = parentDivPos.x + (float)(xWordPosition++) * this->config.getWordWidth();
+      float y = parentDivPos.y + (float)yWordPosition;
       charIndex++;
       word.setString(wordText[i]);
-      word.setPosition(
-        sf::Vector2f(
-          parentDivPos.x + (float)(xWordPosition++) * this->config.getWordWidth(), 
-          parentDivPos.y + (float)yWordPosition
-        )
-      );
+      word.setPosition(sf::Vector2f(x, y));
       
       //Setting cursor position
       if (this->cursorIndex == charIndex) {
