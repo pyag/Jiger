@@ -88,8 +88,11 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
 
   // Resizing Div on window
   if (event.type == sf::Event::Resized) {
-    // Adjust Div size
-    // this->setSize(Div::getWindow()->getSize().x, Div::getWindow()->getSize().y);
+    // Adjust editor size
+    float newEditorWidth = event.size.width - this->config.getEditorXPos();
+    float newEditorHeight = event.size.height - this->config.getEditorYPos();
+    this->config.setEditorXSize(newEditorWidth);
+    this->config.setEditorYSize(newEditorHeight);
 
     // Adjusting Div view
     sf::View editorView = this->getWatchableView();

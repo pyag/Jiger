@@ -20,7 +20,7 @@ GlobalConfig::GlobalConfig () {
 
   this->lineNumberThresholdWidth = 3;
 
-  this->editorXPos = 50.0f;
+  this->editorXPos = 200.0f;
   this->editorYPos = 50.0f;
 
   this->cursorBlinkTimeInSeconds = 550;

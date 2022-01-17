@@ -24,10 +24,17 @@ int main() {
   float editorWidth = desktopWidth - globalEditorConfig.getEditorXPos();
   float editorHeight = desktopHeight - globalEditorConfig.getEditorYPos();
 
-  sf::RenderWindow window(sf::VideoMode(desktopWidth, desktopHeight), "Jiger");
+  // Fonts are not clear when opening app in desktop width mode
+  // Everything scales well after resizing, but strangely does
+  // not work well when opening in full width and height
+  // So for now, opening the editor in small width and height
+  desktopWidth *= 0.7f;
+  desktopHeight *= 0.7f;
 
   globalEditorConfig.setEditorXSize(editorWidth);
   globalEditorConfig.setEditorYSize(editorHeight);
+
+  sf::RenderWindow window(sf::VideoMode(desktopWidth, desktopHeight), "Jiger");
 
   EditorSpace editor(bufferText, globalEditorConfig, &window);
 
@@ -36,7 +43,11 @@ int main() {
     globalEditorConfig.getEditorYPos()
   );
 
-  editor.setSize(window.getSize().x, window.getSize().y);
+  editor.setSize(
+    globalEditorConfig.getEditorXSize(),
+    globalEditorConfig.getEditorYSize()
+  );
+
   editor.fillColor(bgColor);
 
   sf::View editorView = window.getView();
@@ -49,10 +60,10 @@ int main() {
   ));
 
   editorView.setViewport(sf::FloatRect(
-    globalEditorConfig.getEditorXPos() / window.getSize().x,
-    globalEditorConfig.getEditorYPos() / window.getSize().y,
-    globalEditorConfig.getEditorXSize() / window.getSize().x,
-    globalEditorConfig.getEditorYSize() / window.getSize().y
+    globalEditorConfig.getEditorXPos() / desktopWidth,
+    globalEditorConfig.getEditorYPos() / desktopHeight,
+    globalEditorConfig.getEditorXSize() / desktopWidth,
+    globalEditorConfig.getEditorYSize() / desktopHeight
   ));
 
   editor.setWatchableView(editorView);
