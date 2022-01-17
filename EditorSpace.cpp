@@ -94,6 +94,8 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     this->config.setEditorXSize(newEditorWidth);
     this->config.setEditorYSize(newEditorHeight);
 
+    this->setSize(newEditorWidth, newEditorHeight);
+
     // Adjusting Div view
     sf::View editorView = this->getWatchableView();
 
@@ -112,7 +114,6 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     ));
 
     this->setWatchableView(editorView);
-    Div::getWindow()->setView(editorView);
     return;
   }
 
@@ -150,7 +151,6 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     }
 
     this->setWatchableView(currentView);
-    Div::getWindow()->setView(currentView);
     return;
   }
 
@@ -319,7 +319,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   this->cursor.fillColor(fontColor);
   this->cursor.setPosition(
     XResetPos + (float)(xCursorPosition) * this->config.getWordWidth(),
-    (float)yCursorPosition + 2.0f
+    (float)yCursorPosition + 1.0f
   );
 
   if (this->clock.getElapsedTime() > sf::milliseconds(this->config.getCursorBlinkTimeInSeconds())) {

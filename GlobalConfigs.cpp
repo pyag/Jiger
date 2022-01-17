@@ -20,16 +20,20 @@ GlobalConfig::GlobalConfig () {
 
   this->lineNumberThresholdWidth = 3;
 
-  this->editorXPos = 200.0f;
+  this->editorXPos = 245.0f;
   this->editorYPos = 50.0f;
+
+  this->explorerXPos = 0.0f;
+  this->explorerYPos = 0.0f;
 
   this->cursorBlinkTimeInSeconds = 550;
 
-  this->cursorHeight = 22.0f;
+  this->cursorHeight = this->wordHeight;
   this->cursorWidth = 2.0f;
 
   this->setFontColor(200, 200, 200);
-  this->setBgColor(28, 28, 28);
+  this->setBgColor(29, 29, 29);
+  this->setExplorerColor(34, 34, 36);
   this->setLineNumberColor(120, 120, 120);
   this->setCurLineNumberColor(200, 200, 200);
 
@@ -77,6 +81,22 @@ void GlobalConfig::setEditorYSize (float ySize) {
   this->editorYSize = ySize;
 }
 
+void GlobalConfig::setExplorerXPos (float xPos) {
+  this->explorerXPos = xPos;
+}
+
+void GlobalConfig::setExplorerYPos (float yPos) {
+  this->explorerYPos = yPos;
+}
+
+void GlobalConfig::setExplorerXSize (float xSize) {
+  this->explorerXSize = xSize;
+}
+
+void GlobalConfig::setExplorerYSize (float ySize) {
+  this->explorerYSize = ySize;
+}
+
 void GlobalConfig::setCursorBlinkTimeInSeconds (int seconds) {
   this->cursorBlinkTimeInSeconds = seconds;
 }
@@ -99,6 +119,12 @@ void GlobalConfig::setBgColor (int r, int g, int b) {
   this->bgColor.r = r;
   this->bgColor.g = g;
   this->bgColor.b = b;
+}
+
+void GlobalConfig::setExplorerColor (int r, int g, int b) {
+  this->explorerColor.r = r;
+  this->explorerColor.g = g;
+  this->explorerColor.b = b;  
 }
 
 void GlobalConfig::setLineNumberColor (int r, int g, int b) {
@@ -167,6 +193,22 @@ float GlobalConfig::getEditorYSize () {
   return this->editorYSize;
 }
 
+float GlobalConfig::getExplorerXPos () {
+  return this->explorerXPos;
+}
+
+float GlobalConfig::getExplorerYPos () {
+  return this->explorerYPos;
+}
+
+float GlobalConfig::getExplorerXSize () {
+  return this->explorerXSize;
+}
+
+float GlobalConfig::getExplorerYSize () {
+  return this->explorerYSize;
+}
+
 int GlobalConfig::getCursorBlinkTimeInSeconds () {
   return this->cursorBlinkTimeInSeconds;
 }
@@ -185,6 +227,10 @@ ColorComponent GlobalConfig::getFontColor () {
 
 ColorComponent GlobalConfig::getBgColor () {
   return this->bgColor;
+}
+
+ColorComponent GlobalConfig::getExplorerColor () {
+  return this->explorerColor;
 }
 
 ColorComponent GlobalConfig::getLineNumberColor () {

@@ -41,12 +41,16 @@ struct GlobalConfig {
   float editorXPos, editorYPos;
   float editorXSize, editorYSize;
 
+  float explorerXPos, explorerYPos;
+  float explorerXSize, explorerYSize;
+
   int cursorBlinkTimeInSeconds;
 
   float cursorHeight, cursorWidth;
 
   ColorComponent fontColor;
   ColorComponent bgColor;
+  ColorComponent explorerColor;
   ColorComponent lineNumberColor;
   ColorComponent curLineNumberColor;
 
@@ -67,11 +71,17 @@ struct GlobalConfig {
   void setEditorXSize (float);
   void setEditorYSize (float);
 
+  void setExplorerXPos (float);
+  void setExplorerYPos (float);
+  void setExplorerXSize (float);
+  void setExplorerYSize (float);
+
   void setCursorBlinkTimeInSeconds (int);
   void setCursorHeight (float);
   void setCursorWidth (float);
   void setFontColor (int, int, int);
   void setBgColor (int, int, int);
+  void setExplorerColor (int, int, int);
   void setLineNumberColor (int, int, int);
   void setCurLineNumberColor (int, int, int);
   void setFont (std::string);
@@ -89,11 +99,17 @@ struct GlobalConfig {
   float getEditorXSize ();
   float getEditorYSize ();
 
+  float getExplorerXPos ();
+  float getExplorerYPos ();
+  float getExplorerXSize ();
+  float getExplorerYSize ();
+
   int getCursorBlinkTimeInSeconds ();
   float getCursorHeight ();
   float getCursorWidth ();
   ColorComponent getFontColor ();
   ColorComponent getBgColor ();
+  ColorComponent getExplorerColor ();
   ColorComponent getLineNumberColor ();
   ColorComponent getCurLineNumberColor ();
   sf::Font& getFont ();

@@ -4,6 +4,7 @@
 #include <SFML/Window.hpp>
 
 #include "EditorSpace.h"
+#include "Explorer.h"
 #include "FileOperations.h"
 #include "GlobalConfigs.h"
 
@@ -15,7 +16,14 @@ sf::Color bgColor(
   globalEditorConfig.getBgColor().g,
   globalEditorConfig.getBgColor().b
 );
+
 sf::Color blue(0, 0, 255);
+
+sf::Color explorerColor(
+  globalEditorConfig.getExplorerColor().r,
+  globalEditorConfig.getExplorerColor().g,
+  globalEditorConfig.getExplorerColor().b
+);
 
 int main() {
   float desktopWidth = sf::VideoMode::getDesktopMode().width;
@@ -36,6 +44,8 @@ int main() {
 
   sf::RenderWindow window(sf::VideoMode(desktopWidth, desktopHeight), "Jiger");
 
+  /** Editor configuration starts **/
+
   EditorSpace editor(bufferText, globalEditorConfig, &window);
 
   editor.setPosition(
@@ -47,8 +57,6 @@ int main() {
     globalEditorConfig.getEditorXSize(),
     globalEditorConfig.getEditorYSize()
   );
-
-  editor.fillColor(bgColor);
 
   sf::View editorView = window.getView();
 
@@ -67,7 +75,43 @@ int main() {
   ));
 
   editor.setWatchableView(editorView);
-  window.setView(editorView);
+  /** Editor configuration ends **/
+
+  globalEditorConfig.setExplorerXSize(globalEditorConfig.getEditorXPos());
+  globalEditorConfig.setExplorerYSize(desktopHeight);
+
+  /** Explorer configuration starts **/
+
+  Explorer explorer(globalEditorConfig, &window);
+
+  explorer.setPosition(
+    globalEditorConfig.getExplorerXPos(),
+    globalEditorConfig.getExplorerYPos()
+  );
+
+  explorer.setSize(
+    globalEditorConfig.getExplorerXSize(),
+    globalEditorConfig.getExplorerYSize()
+  );
+
+  sf::View explorerView = window.getView();
+  explorerView.reset(sf::FloatRect(
+    globalEditorConfig.getExplorerXPos(),
+    globalEditorConfig.getExplorerYPos(),
+    globalEditorConfig.getExplorerXSize(),
+    globalEditorConfig.getExplorerYSize()
+  ));
+
+  explorerView.setViewport(sf::FloatRect(
+    globalEditorConfig.getExplorerXPos() / desktopWidth,
+    globalEditorConfig.getExplorerYPos() / desktopHeight,
+    globalEditorConfig.getExplorerXSize() / desktopWidth,
+    globalEditorConfig.getExplorerYSize() / desktopHeight
+  ));
+
+  explorer.setWatchableView(explorerView);
+  /** Explorer configuration ends **/
+
 
   while (window.isOpen()) {
     sf::Event event;
@@ -78,10 +122,19 @@ int main() {
 
       // Editor Space/Box polling events.
       editor.pollUserEvents(event);
+      explorer.pollUserEvents(event);
     }
 
     window.clear(bgColor);
+
+    window.setView(editor.getWatchableView());
+    editor.fillColor(bgColor);
     editor.drawOnScreen(window);
+    
+    window.setView(explorer.getWatchableView());
+    explorer.fillColor(explorerColor);
+    explorer.drawOnScreen(window);
+
     window.display();
   }
 
