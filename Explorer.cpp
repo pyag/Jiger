@@ -2,6 +2,8 @@
 
 Explorer::Explorer (GlobalConfig &config, sf::RenderWindow *window): Div(window) {
   this->config = config;
+
+  this->excludedFilePatterns.push_back(".");
 }
 
 void Explorer::pollUserEvents (sf::Event &event) {
@@ -47,6 +49,12 @@ void Explorer::pollUserEvents (sf::Event &event) {
   }
 }
 
+void Explorer::loadWorkPlace (const std::string &path) {
+  this->workplace = new DataNode();
+  this->workplace->fullpath = path;
+  this->workplace->populate(this->excludedFilePatterns);
+}
+
 
 void Explorer::setWatchableView (sf::View &view) {
   this->watchableView = view;
@@ -55,3 +63,5 @@ void Explorer::setWatchableView (sf::View &view) {
 sf::View &Explorer::getWatchableView () {
   return this->watchableView;
 }
+
+
