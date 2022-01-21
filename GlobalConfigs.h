@@ -35,6 +35,10 @@ struct ColorComponent {
 struct GlobalConfig {
   int fontSize;
   float wordHeight, wordWidth;
+
+  float explorerFontSize;
+  float explorerWordHeight, explorerWordWidth;
+
   float breakPointMarkWidth, blockFoldingMarkWidth;
   int lineNumberThresholdWidth;
 
@@ -53,8 +57,10 @@ struct GlobalConfig {
   ColorComponent explorerColor;
   ColorComponent lineNumberColor;
   ColorComponent curLineNumberColor;
+  ColorComponent explorerFontColor;
 
   sf::Font font;
+  sf::Font explorerFont;
 
   GlobalConfig ();
 
@@ -62,6 +68,11 @@ struct GlobalConfig {
   void setFontSize (int);
   void setWordHeight (float);
   void setWordWidth (float);
+
+  void setExplorerFontSize (float);
+  void setExplorerWordHeight (float);
+  void setExplorerWordWidth (float);
+
   void setBreakPointMarkWidth (float);
   void setBlockFoldingMarkWidth (float);
   void setLineNumberThresholdWidth (int);
@@ -84,12 +95,19 @@ struct GlobalConfig {
   void setExplorerColor (int, int, int);
   void setLineNumberColor (int, int, int);
   void setCurLineNumberColor (int, int, int);
+  void setExplorerFontColor (int, int, int);
   void setFont (std::string);
+  void setExplorerFont (std::string);
 
   // Getters
   int getFontSize ();
   float getWordHeight ();
   float getWordWidth ();
+
+  float getExplorerFontSize ();
+  float getExplorerWordHeight ();
+  float getExplorerWordWidth ();
+
   float getBreakPointMarkWidth ();
   float getBlockFoldingMarkWidth ();
   int getLineNumberThresholdWidth ();
@@ -112,7 +130,9 @@ struct GlobalConfig {
   ColorComponent getExplorerColor ();
   ColorComponent getLineNumberColor ();
   ColorComponent getCurLineNumberColor ();
+  ColorComponent getExplorerFontColor ();
   sf::Font& getFont ();
+  sf::Font& getExplorerFont();
 };
 
 #endif

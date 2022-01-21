@@ -11,16 +11,19 @@ ColorComponent::ColorComponent (int r, int g, int b) {
 GlobalConfig::GlobalConfig () {
   // Global constructor sets up the default values
   this->fontSize = 15;
-
   this->wordHeight = 19.0f;
   this->wordWidth = 8.8f;
+
+  this->explorerFontSize = 13.3f;
+  this->explorerWordHeight = 22.0f;
+  this->explorerWordWidth = 8.0f;
 
   this->breakPointMarkWidth = 2.0f;
   this->blockFoldingMarkWidth = 3.0f;
 
   this->lineNumberThresholdWidth = 3;
 
-  this->editorXPos = 245.0f;
+  this->editorXPos = 270.0f;
   this->editorYPos = 50.0f;
 
   this->explorerXPos = 0.0f;
@@ -36,8 +39,10 @@ GlobalConfig::GlobalConfig () {
   this->setExplorerColor(34, 34, 36);
   this->setLineNumberColor(120, 120, 120);
   this->setCurLineNumberColor(200, 200, 200);
+  this->setExplorerFontColor(160, 160, 160);
 
   this->setFont("consola");
+  this->setExplorerFont("monaco");
 }
 
 // Setters
@@ -51,6 +56,18 @@ void GlobalConfig::setWordHeight (float height) {
 
 void GlobalConfig::setWordWidth (float width) {
   this->wordWidth = width;
+}
+
+void GlobalConfig::setExplorerFontSize (float size) {
+  this->explorerFontSize = size;
+}
+
+void GlobalConfig::setExplorerWordHeight (float height) {
+  this->explorerWordHeight = height;
+}
+
+void GlobalConfig::setExplorerWordWidth (float width) {
+  this->explorerWordWidth = width;
 }
 
 void GlobalConfig::setBreakPointMarkWidth (float width) {
@@ -139,6 +156,12 @@ void GlobalConfig::setCurLineNumberColor (int r, int g, int b) {
   this->curLineNumberColor.b = b;
 }
 
+void GlobalConfig::setExplorerFontColor (int r, int g, int b) {
+  this->explorerFontColor.r = r;
+  this->explorerFontColor.g = g;
+  this->explorerFontColor.b = b;  
+}
+
 void GlobalConfig::setFont (std::string fontName) {
   std::string fontPath = "./fonts/consolas/" + fontName + ".ttf";
   if (!this->font.loadFromFile(fontPath)) {
@@ -149,6 +172,19 @@ void GlobalConfig::setFont (std::string fontName) {
   // To remove blurry font in SFML
   // Refer: https://en.sfml-dev.org/forums/index.php?topic=21058.0
   sf::Texture &fontTexture = const_cast <sf::Texture &> (this->font.getTexture(this->getFontSize()));
+  fontTexture.setSmooth(false);
+}
+
+void GlobalConfig::setExplorerFont (std::string fontName) {
+  std::string fontPath = "./fonts/monaco/" + fontName + ".ttf";
+  if (!this->explorerFont.loadFromFile(fontPath)) {
+    std::cout << "Font cannot be loaded!\n";
+    exit(1);
+  }
+
+  // To remove blurry font in SFML
+  // Refer: https://en.sfml-dev.org/forums/index.php?topic=21058.0
+  sf::Texture &fontTexture = const_cast <sf::Texture &> (this->explorerFont.getTexture(this->getExplorerFontSize()));
   fontTexture.setSmooth(false);
 }
 
@@ -163,6 +199,18 @@ float GlobalConfig::getWordHeight () {
 
 float GlobalConfig::getWordWidth () {
   return this->wordWidth;
+}
+
+float GlobalConfig::getExplorerFontSize () {
+  return this->explorerFontSize;
+}
+
+float GlobalConfig::getExplorerWordHeight () {
+  return this->explorerWordHeight;
+}
+
+float GlobalConfig::getExplorerWordWidth () {
+  return this->explorerWordWidth;
 }
 
 float GlobalConfig::getBreakPointMarkWidth () {
@@ -241,6 +289,14 @@ ColorComponent GlobalConfig::getCurLineNumberColor () {
   return this->curLineNumberColor;
 }
 
+ColorComponent GlobalConfig::getExplorerFontColor () {
+  return this->explorerFontColor;
+}
+
 sf::Font& GlobalConfig::getFont () {
   return this->font;
+}
+
+sf::Font& GlobalConfig::getExplorerFont() {
+  return this->explorerFont;
 }

@@ -2,6 +2,7 @@
 
 Explorer::Explorer (GlobalConfig &config, sf::RenderWindow *window): Div(window) {
   this->config = config;
+  this->workplace = NULL;
 
   this->excludedFilePatterns.push_back(".");
 }
@@ -64,4 +65,53 @@ sf::View &Explorer::getWatchableView () {
   return this->watchableView;
 }
 
+void Explorer::drawOnScreen (sf::RenderWindow &window) {
+  Div::drawOnScreen(window);
 
+  if (this->workplace == NULL) {
+    return;
+  }
+
+  float wordWidth = this->config.getExplorerWordWidth();
+  float wordHeight = this->config.getExplorerWordHeight();
+
+  float parentDivXPos = Div::getPosition().x;
+  float parentDivYPos = Div::getPosition().y;
+
+  float leftXPadding = 25.0f;
+  float topYPadding = 50.0f;
+
+  parentDivXPos += leftXPadding;
+  parentDivYPos += topYPadding;
+
+  sf::Color fontColor(
+    this->config.getExplorerFontColor().r,
+    this->config.getExplorerFontColor().g,
+    this->config.getExplorerFontColor().b
+  );
+  sf::Font explorerFont = this->config.getExplorerFont();
+
+  sf::Text word;
+
+  word.setFont(explorerFont);
+  word.setCharacterSize(this->config.getExplorerFontSize());
+  word.setColor(fontColor);
+
+  float paintXPos = 0.0f;
+  float paintYPos = 0.0f;
+
+  for (int i = 0; i < this->workplace->children.size(); i++) {
+    std::string &filename = this->workplace->children[i]->filename;
+
+    paintYPos = i * wordHeight;
+
+    word.setString(filename);
+    word.setPosition(sf::Vector2f(
+      parentDivXPos + paintXPos,
+      parentDivYPos + paintYPos
+    ));
+
+    window.draw(word);
+  }
+
+}

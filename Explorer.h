@@ -24,6 +24,8 @@ public:
   sf::View &getWatchableView ();
 
   void loadWorkPlace (const std::string &);
+
+  void drawOnScreen(sf::RenderWindow &);
 };
 
 #endif
