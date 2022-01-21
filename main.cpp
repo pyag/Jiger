@@ -130,7 +130,7 @@ int main() {
     window.setView(editor.getWatchableView());
     editor.fillColor(bgColor);
     editor.drawOnScreen(window);
-    
+
     window.setView(explorer.getWatchableView());
     explorer.fillColor(explorerColor);
     explorer.drawOnScreen(window);

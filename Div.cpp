@@ -1,5 +1,7 @@
 #include "Div.h"
 
+#include <iostream>
+
 Div::Div (sf::RenderWindow *window) {
   this->window = window;
 }
@@ -40,4 +42,14 @@ sf::Vector2f Div::getSize () {
 
 sf::RenderWindow *Div::getWindow () {
   return this->window;
+}
+
+bool Div::mouseInMyArea(float mx, float my) {
+  float x = this->getPosition().x;
+  float X = x + this->width;
+
+  float y = this->getPosition().y;
+  float Y = y + this->height;
+
+  return !(mx < x || mx > X || my < y || my > Y);
 }

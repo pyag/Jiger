@@ -119,6 +119,11 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
 
   // Mouse Scroll Events on Editor
   if (event.type == sf::Event::MouseWheelScrolled) {
+    if (!Div::mouseInMyArea(
+      (float)sf::Mouse::getPosition(*Div::getWindow()).x,
+      (float)sf::Mouse::getPosition(*Div::getWindow()).y
+    )) return;
+
     sf::View currentView = this->getWatchableView();
     float viewYPosTop = currentView.getCenter().y - currentView.getSize().y / 2.0f;
     float viewYPosBottom = currentView.getCenter().y + currentView.getSize().y / 2.0f;

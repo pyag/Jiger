@@ -26,6 +26,8 @@ public:
   void pollEvents(sf::Event &);
 
   sf::RenderWindow *getWindow ();
+
+  bool mouseInMyArea(float, float);
 };
 
 #endif
