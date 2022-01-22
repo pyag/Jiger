@@ -44,39 +44,6 @@ int main() {
 
   sf::RenderWindow window(sf::VideoMode(desktopWidth, desktopHeight), "Jiger");
 
-  /** Editor configuration starts **/
-
-  EditorSpace editor(bufferText, globalEditorConfig, &window);
-
-  editor.setPosition(
-    globalEditorConfig.getEditorXPos(),
-    globalEditorConfig.getEditorYPos()
-  );
-
-  editor.setSize(
-    globalEditorConfig.getEditorXSize(),
-    globalEditorConfig.getEditorYSize()
-  );
-
-  sf::View editorView = window.getView();
-
-  editorView.reset(sf::FloatRect(
-    globalEditorConfig.getEditorXPos(),
-    globalEditorConfig.getEditorYPos(),
-    globalEditorConfig.getEditorXSize(),
-    globalEditorConfig.getEditorYSize()
-  ));
-
-  editorView.setViewport(sf::FloatRect(
-    globalEditorConfig.getEditorXPos() / desktopWidth,
-    globalEditorConfig.getEditorYPos() / desktopHeight,
-    globalEditorConfig.getEditorXSize() / desktopWidth,
-    globalEditorConfig.getEditorYSize() / desktopHeight
-  ));
-
-  editor.setWatchableView(editorView);
-  /** Editor configuration ends **/
-
   globalEditorConfig.setExplorerXSize(globalEditorConfig.getEditorXPos());
   globalEditorConfig.setExplorerYSize(desktopHeight);
 
@@ -121,15 +88,20 @@ int main() {
       }
 
       // Editor Space/Box polling events.
-      editor.pollUserEvents(event);
+      if (explorer.activeEditor != NULL) {
+        explorer.activeEditor->pollUserEvents(event);
+      }
+
       explorer.pollUserEvents(event);
     }
 
     window.clear(bgColor);
 
-    window.setView(editor.getWatchableView());
-    editor.fillColor(bgColor);
-    editor.drawOnScreen(window);
+    if (explorer.activeEditor != NULL) {
+      window.setView(explorer.activeEditor->getWatchableView());
+      explorer.activeEditor->fillColor(bgColor);
+      explorer.activeEditor->drawOnScreen(window);
+    }
 
     window.setView(explorer.getWatchableView());
     explorer.fillColor(explorerColor);

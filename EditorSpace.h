@@ -43,6 +43,8 @@ public:
 
   void setWatchableView (sf::View &);
   sf::View &getWatchableView ();
+
+  void loadEditorConfigs();
 };
 
 #endif

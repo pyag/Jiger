@@ -1,8 +1,10 @@
 #include "Explorer.h"
+#include "FileOperations.h"
 
 Explorer::Explorer (GlobalConfig &config, sf::RenderWindow *window): Div(window) {
   this->config = config;
   this->workplace = NULL;
+  this->activeEditor = NULL;
 
   this->excludedFilePatterns.push_back(".");
 }
@@ -54,8 +56,23 @@ void Explorer::loadWorkPlace (const std::string &path) {
   this->workplace = new DataNode();
   this->workplace->fullpath = path;
   this->workplace->populate(this->excludedFilePatterns);
-}
 
+  // Just for testing purpose
+  for (int i = 0; i < this->workplace->children.size(); i++) {
+    if (!this->workplace->children[i]->isDirectory) {
+      DataNode *key = this->workplace->children[i];
+
+      std::string fileData = readFile(key->fullpath);
+      EditorSpace *val = new EditorSpace(fileData, this->config, Div::getWindow());
+      val->loadEditorConfigs();
+
+      this->openEditors[key] = val;
+      if (this->activeEditor == NULL) {
+        this->activeEditor = val;
+      }
+    }
+  }
+}
 
 void Explorer::setWatchableView (sf::View &view) {
   this->watchableView = view;

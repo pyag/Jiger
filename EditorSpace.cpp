@@ -440,3 +440,33 @@ void EditorSpace::setWatchableView (sf::View &view) {
 sf::View &EditorSpace::getWatchableView () {
   return this->watchableView;
 }
+
+void EditorSpace::loadEditorConfigs() {
+  this->setPosition(
+    this->config.getEditorXPos(),
+    this->config.getEditorYPos()
+  );
+
+  this->setSize(
+    this->config.getEditorXSize(),
+    this->config.getEditorYSize()
+  );
+
+  sf::View editorView = Div::getWindow()->getView();
+
+  editorView.reset(sf::FloatRect(
+    this->config.getEditorXPos(),
+    this->config.getEditorYPos(),
+    this->config.getEditorXSize(),
+    this->config.getEditorYSize()
+  ));
+
+  editorView.setViewport(sf::FloatRect(
+    this->config.getEditorXPos() / Div::getWindow()->getSize().x,
+    this->config.getEditorYPos() / Div::getWindow()->getSize().y,
+    this->config.getEditorXSize() / Div::getWindow()->getSize().x,
+    this->config.getEditorYSize() / Div::getWindow()->getSize().y
+  ));
+
+  this->setWatchableView(editorView);
+}
