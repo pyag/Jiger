@@ -15,6 +15,7 @@ struct DataNodeElement : public Div {
   DataNodeElement (DataNode *, GlobalConfig &, sf::RenderWindow *);
   void pollUserEvents (sf::Event &);
 
+  bool onClick (sf::Event &);
   void onHover ();
 };
 

@@ -14,6 +14,24 @@ void Explorer::pollUserEvents (sf::Event &event) {
 
   for (int i = 0; i < this->fileDivs.size(); i++) {
     this->fileDivs[i]->pollUserEvents(event);
+
+    // Checks onclick event
+    if (this->fileDivs[i]->onClick(event)) {
+      
+      // Open editor according to the Data Node clicked
+      std::string fileData = readFile(this->fileDivs[i]->dn->fullpath);
+      EditorSpace *newEditor = new EditorSpace(
+        fileData,
+        this->config,
+        Div::getWindow()
+      );
+      newEditor->loadEditorConfigs();
+      
+      this->activeEditor = newEditor;
+      // this->openEditors[this->fileDivs[i]->dn] = newEditor;
+
+      return;
+    }
   }
 
   // Resizing Div on window
@@ -61,30 +79,15 @@ void Explorer::loadWorkPlace (const std::string &path) {
   this->workplace->fullpath = path;
   this->workplace->populate(this->excludedFilePatterns);
 
-  // Just for testing purpose
-/*
-  for (int i = 0; i < this->workplace->children.size(); i++) {
-    if (!this->workplace->children[i]->isDirectory) {
-      DataNode *key = this->workplace->children[i];
-
-      std::string fileData = readFile(key->fullpath);
-      EditorSpace *val = new EditorSpace(fileData, this->config, Div::getWindow());
-      val->loadEditorConfigs();
-
-      this->openEditors[key] = val;
-      if (this->activeEditor == NULL) {
-        this->activeEditor = val;
-      }
-    }
-  }
-*/
-
   for (int i = 0; i < this->workplace->children.size(); i++) {
     DataNode *dn = this->workplace->children[i];
-    DataNodeElement *displayDn = new DataNodeElement(dn, this->config, Div::getWindow());
+    DataNodeElement *displayDn = new DataNodeElement(
+      dn,
+      this->config,
+      Div::getWindow()
+    );
     this->fileDivs.push_back(displayDn);
   }
-
 }
 
 void Explorer::setWatchableView (sf::View &view) {
