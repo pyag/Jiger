@@ -12,7 +12,11 @@ Explorer::Explorer (GlobalConfig &config, sf::RenderWindow *window): Div(window)
 void Explorer::pollUserEvents (sf::Event &event) {
   Div::pollEvents(event);
 
-    // Resizing Div on window
+  for (int i = 0; i < this->fileDivs.size(); i++) {
+    this->fileDivs[i]->pollUserEvents(event);
+  }
+
+  // Resizing Div on window
   if (event.type == sf::Event::Resized) {
     // Adjust editor size
     float newExplorerWidth = this->config.getEditorXPos();
@@ -58,6 +62,7 @@ void Explorer::loadWorkPlace (const std::string &path) {
   this->workplace->populate(this->excludedFilePatterns);
 
   // Just for testing purpose
+/*
   for (int i = 0; i < this->workplace->children.size(); i++) {
     if (!this->workplace->children[i]->isDirectory) {
       DataNode *key = this->workplace->children[i];
@@ -72,6 +77,14 @@ void Explorer::loadWorkPlace (const std::string &path) {
       }
     }
   }
+*/
+
+  for (int i = 0; i < this->workplace->children.size(); i++) {
+    DataNode *dn = this->workplace->children[i];
+    DataNodeElement *displayDn = new DataNodeElement(dn, this->config, Div::getWindow());
+    this->fileDivs.push_back(displayDn);
+  }
+
 }
 
 void Explorer::setWatchableView (sf::View &view) {
@@ -117,15 +130,26 @@ void Explorer::drawOnScreen (sf::RenderWindow &window) {
   float paintXPos = 0.0f;
   float paintYPos = 0.0f;
 
-  for (int i = 0; i < this->workplace->children.size(); i++) {
-    std::string &filename = this->workplace->children[i]->filename;
+  float heightBuf = 2.0f;
 
+  for (int i = 0; i < this->workplace->children.size(); i++) {
     paintYPos = i * wordHeight;
+
+    DataNodeElement *dnDiv = this->fileDivs[i];
+
+    dnDiv->setPosition(
+      Div::getPosition().x,
+      parentDivYPos + paintYPos
+    );
+    dnDiv->setSize(Div::getSize().x, wordHeight);
+    dnDiv->drawOnScreen(*Div::getWindow());
+
+    std::string &filename = this->workplace->children[i]->filename;
 
     word.setString(filename);
     word.setPosition(sf::Vector2f(
       parentDivXPos + paintXPos,
-      parentDivYPos + paintYPos
+      parentDivYPos + paintYPos + heightBuf
     ));
 
     window.draw(word);

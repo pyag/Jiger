@@ -6,6 +6,7 @@
 #include "Div.h"
 #include "GlobalConfigs.h"
 #include "DataNode.h"
+#include "DataNodeElement.h"
 #include "EditorSpace.h"
 
 #ifndef EXPLORER
@@ -17,6 +18,7 @@ public:
   sf::View watchableView;
   DataNode *workplace;
   std::map <DataNode *, EditorSpace *> openEditors;
+  std::vector <DataNodeElement *> fileDivs;
 
   EditorSpace *activeEditor;
   std::vector <std::string> excludedFilePatterns;
