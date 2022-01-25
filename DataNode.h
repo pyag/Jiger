@@ -1,8 +1,8 @@
-#include <string>
-#include <vector>
-
 #ifndef DATANODE
 #define DATANODE
+
+#include <string>
+#include <vector>
 
 struct DataNode {
   std::string fullpath;

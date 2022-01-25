@@ -1,9 +1,9 @@
+#ifndef FILE_OPERATIONS
+#define FILE_OPERATIONS
+
 #include <string>
 
 #include "DataNode.h"
-
-#ifndef FILE_OPERATIONS
-#define FILE_OPERATIONS
 
 std::string readFile (const std::string &);
 void populateDataNode (const std::string &, DataNode *, std::vector <std::string> &);

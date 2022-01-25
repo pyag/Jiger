@@ -1,3 +1,6 @@
+#ifndef EXPLORER
+#define EXPLORER
+
 #include <map>
 
 #include <SFML/Graphics.hpp>
@@ -8,9 +11,6 @@
 #include "DataNode.h"
 #include "DataNodeElement.h"
 #include "EditorSpace.h"
-
-#ifndef EXPLORER
-#define EXPLORER
 
 class Explorer: public Div {
 public:

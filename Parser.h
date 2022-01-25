@@ -1,8 +1,8 @@
-#include <string>
-#include <iostream>
-
 #ifndef PARSER
 #define PARSER
+
+#include <string>
+#include <iostream>
 
 class Parser {
 public:

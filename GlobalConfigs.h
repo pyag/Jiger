@@ -1,11 +1,17 @@
+#ifndef PROG_LANG
+#define PROG_LANG
+
+#ifndef COLOR_COMPONENT
+#define COLOR_COMPONENT
+
+#ifndef GLOBAL_CONFIG
+#define GLOBAL_CONFIG
+
 #include <string>
 #include <iostream>
 #include <cstdlib>
 
 #include <SFML/Graphics.hpp>
-
-#ifndef PROG_LANG
-#define PROG_LANG
 
 enum ProgLang {
   PlainText,
@@ -15,22 +21,12 @@ enum ProgLang {
   JavaScript
 };
 
-#endif
-
-#ifndef COLOR_COMPONENT
-#define COLOR_COMPONENT
-
 struct ColorComponent {
   int r, g, b;
 
   ColorComponent ();
   ColorComponent (int, int, int);
 };
-
-#endif
-
-#ifndef GLOBAL_CONFIG
-#define GLOBAL_CONFIG
 
 struct GlobalConfig {
   int fontSize;
@@ -134,5 +130,9 @@ struct GlobalConfig {
   sf::Font& getFont ();
   sf::Font& getExplorerFont();
 };
+
+#endif
+
+#endif
 
 #endif

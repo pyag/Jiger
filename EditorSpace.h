@@ -1,3 +1,6 @@
+#ifndef EDITOR_SPACE
+#define EDITOR_SPACE
+
 #include <iostream>
 #include <cstdlib>
 #include <vector>
@@ -9,9 +12,6 @@
 #include "Parser.h"
 #include "GlobalConfigs.h"
 #include "langHighlight/highlight.h"
-
-#ifndef EDITOR_SPACE
-#define EDITOR_SPACE
 
 class EditorSpace: public Div {
 public:

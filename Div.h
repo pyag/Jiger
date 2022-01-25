@@ -1,8 +1,8 @@
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
-
 #ifndef DIV
 #define DIV
+
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
 
 class Div {
 public:

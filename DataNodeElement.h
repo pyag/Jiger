@@ -1,10 +1,9 @@
-#include "DataNode.h"
-// #include "Explorer.h"
-#include "GlobalConfigs.h"
-#include "Div.h"
-
 #ifndef DATA_NODE_ELEMENT
 #define DATA_NODE_ELEMENT
+
+#include "DataNode.h"
+#include "GlobalConfigs.h"
+#include "Div.h"
 
 struct DataNodeElement : public Div {
   bool mousePressedState;
