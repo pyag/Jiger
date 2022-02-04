@@ -66,10 +66,44 @@ void Explorer::pollUserEvents (sf::Event &event) {
     return;
   }
 
-
-  // Mouse Scroll Events on Explorer
+  // Mouse Scroll Events on Editor
   if (event.type == sf::Event::MouseWheelScrolled) {
-    // For now do nothing
+    if (!Div::mouseInMyArea(
+      (float)sf::Mouse::getPosition(*Div::getWindow()).x,
+      (float)sf::Mouse::getPosition(*Div::getWindow()).y
+    )) return;
+
+    sf::View currentView = this->getWatchableView();
+    float viewYPosTop = currentView.getCenter().y - currentView.getSize().y / 2.0f;
+    float viewYPosBottom = currentView.getCenter().y + currentView.getSize().y / 2.0f;
+
+    // Mouse scroll up
+    if (event.mouseWheelScroll.delta > 0) {
+      // Stop scroll up when reaching top of the text
+
+      float scrollUpThreshold = this->config.getExplorerYPos();
+
+      if (viewYPosTop - scrollUpThreshold > 40.0f) {
+        currentView.move(0.f, -40.f);
+      } else {
+        currentView.move(0.f, scrollUpThreshold - viewYPosTop);
+      }
+    }
+
+    // Mouse scroll down
+    if (event.mouseWheelScroll.delta < 0) {
+      // Stop scroll down below last line of text
+      float scrollDownThreshold = this->config.getExplorerYPos();
+      scrollDownThreshold += this->config.getExplorerYSize() + 500.0f;
+
+      if (scrollDownThreshold - viewYPosBottom > 40.0f) {
+        currentView.move(0.f, 40.f);
+      } else {
+        currentView.move(0.f, scrollDownThreshold - viewYPosBottom);        
+      }
+    }
+
+    this->setWatchableView(currentView);
     return;
   }
 }
