@@ -5,6 +5,7 @@
 #include <vector>
 
 struct DataNode {
+  int id;
   std::string fullpath;
   std::string filename;
   bool isDirectory;

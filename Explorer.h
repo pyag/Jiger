@@ -17,8 +17,9 @@ public:
   GlobalConfig config;
   sf::View watchableView;
   DataNode *workplace;
-  std::map <DataNode *, EditorSpace *> openEditors;
+  std::map <int, EditorSpace *> openEditors;
   std::vector <DataNodeElement *> fileDivs;
+  int dataNodeId;
 
   EditorSpace *activeEditor;
   std::vector <std::string> excludedFilePatterns;

@@ -8,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
+#include "Buffer.h"
 #include "Div.h"
 #include "Parser.h"
 #include "GlobalConfigs.h"
@@ -15,10 +16,10 @@
 
 class EditorSpace: public Div {
 public:
-  std::string bufferText;
-  int cursorIndex;
-  int curLine, wordsInLineBeforeCursor;
-  std::vector <int> wordsInLine;
+  Buffer *buf;
+  std::string fileLoc;
+
+  int cursorIndex, curLine;
   // Don't worry ProgLang is just an enum
   ProgLang langSelected;
 
@@ -32,19 +33,22 @@ public:
   sf::View watchableView;
 
   EditorSpace(std::string &, GlobalConfig &, sf::RenderWindow *);
-  std::string getBufferText();
   void setLanguage(ProgLang);
   void pollUserEvents(sf::Event &);
   void pollKeyboard(int);
   void drawOnScreen(sf::RenderWindow &);
   float getXTextOffset();
-  void displayLineNumber(int);
+  void displayLineNumber(int, int);
   int getTotalLineCount();
 
   void setWatchableView (sf::View &);
   sf::View &getWatchableView ();
 
   void loadEditorConfigs();
+  void updateEditorSize();
+
+  void scrollUpByLines(int);
+  void scrollDownByLines(int);
 };
 
 #endif

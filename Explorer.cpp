@@ -7,6 +7,7 @@ Explorer::Explorer (GlobalConfig &config, sf::RenderWindow *window): Div(window)
   this->activeEditor = NULL;
 
   this->excludedFilePatterns.push_back(".");
+  this->dataNodeId = 0;
 }
 
 void Explorer::pollUserEvents (sf::Event &event) {
@@ -17,18 +18,25 @@ void Explorer::pollUserEvents (sf::Event &event) {
 
     // Checks onclick event
     if (this->fileDivs[i]->onClick(event)) {
-      
+
       // Open editor according to the Data Node clicked
-      std::string fileData = readFile(this->fileDivs[i]->dn->fullpath);
+
+      int clickedDnId = this->fileDivs[i]->dn->id;
+
+      if (this->openEditors.find(clickedDnId) != this->openEditors.end()) {
+        this->activeEditor = this->openEditors[clickedDnId];
+        return;
+      } 
+
       EditorSpace *newEditor = new EditorSpace(
-        fileData,
+        this->fileDivs[i]->dn->fullpath,
         this->config,
         Div::getWindow()
       );
       newEditor->loadEditorConfigs();
       
       this->activeEditor = newEditor;
-      // this->openEditors[this->fileDivs[i]->dn] = newEditor;
+      this->openEditors[clickedDnId] = newEditor;
 
       return;
     }
@@ -115,6 +123,7 @@ void Explorer::loadWorkPlace (const std::string &path) {
 
   for (int i = 0; i < this->workplace->children.size(); i++) {
     DataNode *dn = this->workplace->children[i];
+    dn->id = this->dataNodeId++;
     DataNodeElement *displayDn = new DataNodeElement(
       dn,
       this->config,

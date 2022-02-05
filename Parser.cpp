@@ -2,20 +2,33 @@
 
 Parser::Parser () {
   this->curIndex = 0;
+  this->startIndex = 0;
+  this->endIndex = 0;
 }
 
-Parser::Parser (std::string &buffer) {
+Parser::Parser (const std::string &buffer) {
   this->curIndex = 0;
+  this->startIndex = 0;
   this->buffer = buffer;
+  this->endIndex = this->buffer.length();
 }
 
-void Parser::loadBuffer (std::string &buffer) {
-  this->buffer = buffer;
+void Parser::loadBuffer (const std::string &buffer) {
   this->curIndex = 0;
+  this->startIndex = 0;
+  this->buffer = buffer;
+  this->endIndex = this->buffer.length();
+}
+
+void Parser::loadBuffer (const std::string &buffer, int start, int end) {
+  this->curIndex = start;
+  this->startIndex = start;
+  this->endIndex = end;
+  this->buffer = buffer;
 }
 
 bool Parser::hasNextToken () {
-  return this->curIndex < this->buffer.length();
+  return (this->curIndex >= this->startIndex && this->curIndex < this->endIndex);
 }
 
 std::string Parser::getToken () {
@@ -24,7 +37,7 @@ std::string Parser::getToken () {
   int index = this->curIndex;
   char ch;
   
-  if (index < this->buffer.length()) {
+  if (index < this->endIndex) {
     ch = this->buffer[index];
     while((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch == '#')) {
       token += ch;

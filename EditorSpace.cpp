@@ -1,12 +1,15 @@
 #include "EditorSpace.h"
 
-EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config, sf::RenderWindow *window): Div(window) {
-  this->bufferText = bufferText;
-  this->cursorIndex = 0;
-  this->showCursor = true;
+EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig &config, sf::RenderWindow *window): Div(window) {
+  this->fileLoc = fileLoc;
+  
+  this->buf = new Buffer(this->fileLoc);
+  this->buf->loadBuffer();
 
+  this->cursorIndex = 0;
   this->curLine = 0;
-  this->wordsInLineBeforeCursor = 0;
+
+  this->showCursor = true;
 
   this->config = config;
   this->langSelected = PlainText;
@@ -16,13 +19,16 @@ EditorSpace::EditorSpace (std::string &bufferText, GlobalConfig &config, sf::Ren
 void EditorSpace::pollKeyboard (int unicode) {
   // Backspace
   if (unicode == 8) {
-    if (this->cursorIndex == this->bufferText.length()) {
-      this->bufferText = this->bufferText.substr(0, this->bufferText.length() - 1);
-    } else {
-      if (this->cursorIndex > 0) {
-        this->bufferText = this->bufferText.substr(0, this->cursorIndex - 1)
-                          + this->bufferText.substr(this->cursorIndex, this->bufferText.length());
-      }
+    bool syncLines = false;
+    int to = this->cursorIndex;
+    if (this->buf->getCharAtPos(to - 1) == '\n') {
+      syncLines = true;
+    }
+
+    this->buf->remove(to - 1, to);
+
+    if (syncLines) {
+      this->buf->syncLineBreaks();
     }
 
     if (this->cursorIndex > 0) this->cursorIndex--;
@@ -31,15 +37,9 @@ void EditorSpace::pollKeyboard (int unicode) {
 
   // Tab - For now its fixed for two spaces
   if (unicode == 9) {
-    if (this->cursorIndex == this->bufferText.length()) {
-      this->bufferText += "  ";
-    } else if (this->cursorIndex == 0) {
-      this->bufferText = "  " + this->bufferText;
-    } else {
-      this->bufferText = this->bufferText.substr(0, this->cursorIndex)
-                          + "  "
-                          + this->bufferText.substr(this->cursorIndex, this->bufferText.length());
-    }
+
+    std::string tabs = "  ";
+    this->buf->insert(tabs, this->cursorIndex);
 
     this->cursorIndex += 2;
     return;
@@ -47,30 +47,18 @@ void EditorSpace::pollKeyboard (int unicode) {
 
   // Return
   if (unicode == 13) {
-    if (this->cursorIndex == this->bufferText.length()) {
-      this->bufferText += "\n"; 
-    } else if (this->cursorIndex == 0) {
-      this->bufferText = "\n" + this->bufferText;
-    } else {
-      this->bufferText = this->bufferText.substr(0, this->cursorIndex) 
-                          + "\n" 
-                          + this->bufferText.substr(this->cursorIndex, this->bufferText.length());
-    }
+    std::string returnChar = "\n";
+    this->buf->insert(returnChar, this->cursorIndex);
+    this->buf->syncLineBreaks();
     
     this->cursorIndex++;
     return;
   }
 
   if (unicode >= 32 && unicode <= 126) {
-    if (this->cursorIndex == this->bufferText.length()) {
-      this->bufferText += (char)(unicode); 
-    } else if (this->cursorIndex == 0) {
-      this->bufferText = (char)(unicode) + this->bufferText;
-    } else {
-      this->bufferText = this->bufferText.substr(0, this->cursorIndex)
-                          + (char)(unicode)
-                          + this->bufferText.substr(this->cursorIndex, this->bufferText.length());
-    }
+    std::string newChar;
+    newChar = (char)(unicode);
+    this->buf->insert(newChar, this->cursorIndex);
 
     this->cursorIndex++;
     return;
@@ -124,52 +112,38 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
       (float)sf::Mouse::getPosition(*Div::getWindow()).y
     )) return;
 
-    sf::View currentView = this->getWatchableView();
-    float viewYPosTop = currentView.getCenter().y - currentView.getSize().y / 2.0f;
-    float viewYPosBottom = currentView.getCenter().y + currentView.getSize().y / 2.0f;
-
     // Mouse scroll up
     if (event.mouseWheelScroll.delta > 0) {
-      // Stop scroll up when reaching top of the text
-
-      float scrollUpThreshold = this->config.getEditorYPos();
-
-      if (viewYPosTop - scrollUpThreshold > 40.0f) {
-        currentView.move(0.f, -40.f);
-      } else {
-        currentView.move(0.f, scrollUpThreshold - viewYPosTop);
-      }
+      this->scrollUpByLines(3);
+      return;
     }
 
     // Mouse scroll down
     if (event.mouseWheelScroll.delta < 0) {
-      // Stop scroll down below last line of text
-      float scrollDownThreshold = this->config.getEditorYPos();
-      scrollDownThreshold += ((this->getTotalLineCount() - 1) * this->config.getWordHeight());
-      scrollDownThreshold += this->config.getEditorYSize();
-
-      if (scrollDownThreshold - viewYPosBottom > 40.0f) {
-        currentView.move(0.f, 40.f);
-      } else {
-        currentView.move(0.f, scrollDownThreshold - viewYPosBottom);        
-      }
+      this->scrollDownByLines(3);
+      return;
     }
-
-    this->setWatchableView(currentView);
-    return;
   }
 
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
     this->showCursor = true;
     this->clock.restart();
-    if (this->cursorIndex > 0) this->cursorIndex--;
+
+    if (this->cursorIndex > 0) {
+      this->cursorIndex--;
+    }    
+    
     return;
   }
 
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
     this->showCursor = true;
     this->clock.restart();
-    if (this->cursorIndex < this->bufferText.length()) this->cursorIndex++;
+
+    if (this->cursorIndex < this->buf->getBufferLength()) {
+      this->cursorIndex++;
+    }
+
     return;
   }
 
@@ -182,15 +156,17 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
       return;
     }
 
-    int wordsInLineAbove = this->wordsInLine[this->curLine - 1];
-    int wordsTillCursor = this->wordsInLineBeforeCursor;
-    this->cursorIndex = this->cursorIndex - wordsTillCursor;
-    if (wordsInLineAbove - wordsTillCursor > 0) {
-      this->cursorIndex = this->cursorIndex - (wordsInLineAbove - wordsTillCursor);
-    }
-    this->cursorIndex--;
-    this->curLine--;
+    int startPosInCurLine = this->buf->getLineStartPos(this->curLine);
+    int wordGapInCurLine = this->cursorIndex - startPosInCurLine;
 
+    int startPosInLineAbove = this->buf->getLineStartPos(this->curLine - 1);
+    if (startPosInLineAbove + wordGapInCurLine > startPosInCurLine) {
+      this->cursorIndex = startPosInCurLine - 1;
+    } else {
+      this->cursorIndex = startPosInLineAbove + wordGapInCurLine;
+    }
+
+    this->curLine--;
     return;
   }
 
@@ -198,19 +174,29 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     this->showCursor = true;
     this->clock.restart();
 
-    if (this->curLine == this->getTotalLineCount() - 1) {
-      this->cursorIndex = this->bufferText.length();
+    if (this->curLine == this->buf->getLineCount() - 1) {
+      this->cursorIndex = this->buf->getBufferLength();
       return;
     }
 
-    int wordsInLineBelow = this->wordsInLine[this->curLine + 1];
-    int wordsTillCursor = this->wordsInLineBeforeCursor;
-    int wordsInCurLine = this->wordsInLine[this->curLine];
-    this->cursorIndex = this->cursorIndex + (wordsInCurLine - wordsTillCursor);
-    
-    this->cursorIndex += wordsTillCursor < wordsInLineBelow ? wordsTillCursor : wordsInLineBelow;
+    int startPosInCurLine = this->buf->getLineStartPos(this->curLine);
+    int wordGapInCurLine = this->cursorIndex - startPosInCurLine;
 
-    this->cursorIndex++;
+    int startPosInLineBelow = this->buf->getLineStartPos(this->curLine + 1);
+    int startPosInLineBelowBelow;
+
+    if (this->curLine + 2 < this->buf->getLineCount()) {
+      startPosInLineBelowBelow = this->buf->getLineStartPos(this->curLine + 2);
+    } else {
+      startPosInLineBelowBelow = this->buf->getBufferLength();
+    }
+
+    if (startPosInLineBelow + wordGapInCurLine > startPosInLineBelowBelow) {
+      this->cursorIndex = startPosInLineBelowBelow - 1;
+    } else {
+      this->cursorIndex = startPosInLineBelow + wordGapInCurLine;
+    }
+
     this->curLine++;
 
     return;
@@ -225,10 +211,6 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
   return;
 }
 
-std::string EditorSpace::getBufferText () {
-  return this->bufferText;
-}
-
 void EditorSpace::setLanguage (ProgLang lang) {
   this->langSelected = lang;
 }
@@ -241,116 +223,117 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
     this->config.getFontColor().g,
     this->config.getFontColor().b
   );
+
   sf::Font editorFont = this->config.getFont();
   sf::Text word;
   ProgLang languageSelected = this->langSelected;
 
-  int xWordPosition, yWordPosition, xCursorPosition, yCursorPosition;
+  int xWordPosition, yWordPosition;
   float XResetPos;
-  int charIndex, lineCount;
   std::string wordText;
 
   XResetPos = Div::getPosition().x;
 
-  if (!(this->hideLineNumber)) {
-    XResetPos += this->getXTextOffset() * this->config.getWordWidth();
-    this->displayLineNumber(this->getTotalLineCount());
-  }
-
   xWordPosition = 0;
   yWordPosition = Div::getPosition().y;
-  charIndex = 0;
-  lineCount = 0;
 
-  // Cursor display settings
-  xCursorPosition = 0;
-  yCursorPosition = Div::getPosition().y;
+  this->curLine = this->buf->getLineNumberByPos(this->cursorIndex);
 
   word.setFont(editorFont);
   word.setCharacterSize(this->config.getFontSize());
   word.setColor(fontColor);
 
-  this->wordsInLine.clear();
-  Parser parser(this->bufferText);
-  while (parser.hasNextToken()) {
-    wordText = parser.getToken();
+  sf::View view = this->getWatchableView();
+  float viewTop = view.getCenter().y - (view.getSize().y / 2.0f);
+  float viewBottom = view.getCenter().y + (view.getSize().y / 2.0f);
+
+  int lineTop =
+    (viewTop - Div::getPosition().y) / this->config.getWordHeight();
+  int lineBottom =
+    (viewBottom - Div::getPosition().y) / this->config.getWordHeight();
+  lineBottom =
+    lineBottom > this->buf->getLineCount()
+    ? this->buf->getLineCount()
+    : lineBottom;
+
+  int startIndex = this->buf->getLineStartPos(lineTop);
+  int endIndex = this->buf->getLineStartPos(lineBottom);
+
+  endIndex =
+    (lineBottom == this->buf->getLineCount())
+    ? this->buf->getBufferLength()
+    : endIndex;
+
+  if (!(this->hideLineNumber)) {
+    XResetPos += this->getXTextOffset() * this->config.getWordWidth();
+    this->displayLineNumber(lineTop, lineBottom);
+  }
+
+  yWordPosition += lineTop * this->config.getWordHeight();
+  Parser *parser = new Parser();
+  parser->loadBuffer(this->buf->getSource(), startIndex, endIndex);
+
+  while (parser->hasNextToken()) {
+    wordText = parser->getToken();
 
     ColorComponent colorRgb = wordHighlighter(wordText, languageSelected);
     sf::Color curWordColor(colorRgb.r, colorRgb.g, colorRgb.b);
     word.setColor(curWordColor);
 
     if (wordText == "\n") {
-      charIndex++;
-      lineCount++;
-      this->wordsInLine.push_back(xWordPosition);
-
       xWordPosition = 0;
       yWordPosition += this->config.getWordHeight();
-
-      // Setting cursor to newline
-      if (this->cursorIndex == charIndex) {
-        xCursorPosition = xWordPosition;
-        yCursorPosition = yWordPosition;
-        this->curLine = lineCount;
-        this->wordsInLineBeforeCursor = xCursorPosition;
-      }
-
       continue;
     }
 
     for (int i = 0; i < wordText.length(); i++) {
       float x = XResetPos + (float)(xWordPosition++) * this->config.getWordWidth();
       float y = (float)yWordPosition;
-      charIndex++;
+
       word.setString(wordText[i]);
       word.setPosition(sf::Vector2f(x, y));
-      
-      //Setting cursor position
-      if (this->cursorIndex == charIndex) {
-        xCursorPosition = xWordPosition;
-        yCursorPosition = yWordPosition;
-        this->curLine = lineCount;
-        this->wordsInLineBeforeCursor = xCursorPosition;
-      }
 
       window.draw(word);
     }
   }
 
-  // the line below captures last line words
-  this->wordsInLine.push_back(xWordPosition);
-
-  this->cursor.setSize(this->config.getCursorWidth(), this->config.getCursorHeight());
-  this->cursor.fillColor(fontColor);
-  this->cursor.setPosition(
-    XResetPos + (float)(xCursorPosition) * this->config.getWordWidth(),
-    (float)yCursorPosition + 1.0f
+  this->cursor.setSize(
+    this->config.getCursorWidth(),
+    this->config.getCursorHeight()
   );
 
-  if (this->clock.getElapsedTime() > sf::milliseconds(this->config.getCursorBlinkTimeInSeconds())) {
+  this->cursor.fillColor(fontColor);
+
+  float cursorX = XResetPos +
+    (this->cursorIndex - this->buf->getLineStartPos(this->curLine)) *
+    this->config.getWordWidth();
+
+  float cursorY = Div::getPosition().y +
+    this->curLine * this->config.getWordHeight() +
+    1.0f;
+
+  this->cursor.setPosition(cursorX, cursorY);
+
+  if (
+    this->clock.getElapsedTime() >
+    sf::milliseconds(this->config.getCursorBlinkTimeInSeconds())
+  ) {
     this->showCursor = !this->showCursor;
     this->clock.restart();
   }
 
-  if (this->showCursor) {
+  if (
+    (this->curLine >= lineTop && this->curLine <= lineBottom)
+    && this->showCursor
+  ) {
     this->cursor.drawOnScreen(window);
   }
 
-  // Updating Editor Space Div size, if required
-  int totalLines = this->getTotalLineCount();
-
-  int newXSize = Div::getSize().x;
-  int newYSize = totalLines * this->config.getWordHeight();
-
-  if (newYSize < Div::getWindow()->getSize().y) {
-    newYSize = Div::getWindow()->getSize().y;
-  }
-
-  Div::setSize(newXSize, newYSize);
+  this->updateEditorSize();
 }
 
 float EditorSpace::getXTextOffset () {
-  int lineCount = this->getTotalLineCount();
+  int lineCount = this->buf->getLineCount();
   int lineCountDigits = 0;
 
   while (lineCount) {
@@ -369,7 +352,7 @@ float EditorSpace::getXTextOffset () {
   return (lineCountDigits + breakPointMarkWidth + blockFoldingMarkWidth);
 }
 
-void EditorSpace::displayLineNumber (int lineCount) {
+void EditorSpace::displayLineNumber (int start, int end) {
   float xNumPos, yNumPos, xNumPosPadding;
   sf::Vector2f parentDivPos = Div::getPosition();
   sf::Text num;
@@ -393,7 +376,7 @@ void EditorSpace::displayLineNumber (int lineCount) {
   num.setCharacterSize(this->config.getFontSize());
 
   int digitCount = 0;
-  for (int tmpNum = lineCount; tmpNum;) {
+  for (int tmpNum = this->buf->getLineCount(); tmpNum;) {
     digitCount++;
     tmpNum /= 10;
   }
@@ -402,7 +385,7 @@ void EditorSpace::displayLineNumber (int lineCount) {
     lineNumThresh = lineNumThresh;
   }
 
-  for (int line = 0; line < lineCount; line++) {
+  for (int line = start; line < end; line++) {
     
     std::string lineStr = std::to_string(line + 1);
     xNumPos = this->config.getBreakPointMarkWidth();
@@ -427,10 +410,6 @@ void EditorSpace::displayLineNumber (int lineCount) {
       Div::getWindow()->draw(num);
     }
   }
-}
-
-int EditorSpace::getTotalLineCount () {
-  return this->wordsInLine.size();
 }
 
 void EditorSpace::setWatchableView (sf::View &view) {
@@ -469,4 +448,55 @@ void EditorSpace::loadEditorConfigs() {
   ));
 
   this->setWatchableView(editorView);
+}
+
+void EditorSpace::updateEditorSize () {
+  // Updating Editor Space Div size, if required
+  int newXSize = Div::getSize().x;
+  int newYSize = this->buf->getLineCount() * this->config.getWordHeight();
+
+  if (newYSize < Div::getWindow()->getSize().y) {
+    newYSize = Div::getWindow()->getSize().y;
+  }
+
+  Div::setSize(newXSize, newYSize);
+}
+
+void EditorSpace::scrollUpByLines (int lines) {
+  sf::View view = this->getWatchableView();
+
+  float viewYPosTop = view.getCenter().y - view.getSize().y / 2.0f;
+  float scrollDelta = lines * this->config.getWordHeight();
+  float scrollUpThreshold = this->config.getEditorYPos();
+
+  // Stop scroll up when reaching top of the text
+  if (viewYPosTop - scrollUpThreshold > scrollDelta) {
+    view.move(0.f, -scrollDelta);
+  } else {
+    view.move(0.f, scrollUpThreshold - viewYPosTop);
+  }
+
+  this->setWatchableView(view);
+}
+
+void EditorSpace::scrollDownByLines (int lines) {
+  sf::View view = this->getWatchableView();
+
+  float viewYPosBottom = view.getCenter().y + view.getSize().y / 2.0f;
+  
+  float scrollDownThreshold = this->config.getEditorYPos();
+  scrollDownThreshold += 
+    ((this->buf->getLineCount() - 1) * this->config.getWordHeight());
+  scrollDownThreshold += this->config.getEditorYSize();
+
+  float scrollDelta = lines * this->config.getWordHeight();
+
+  // Stop scroll down below last line of text
+  if (scrollDownThreshold - viewYPosBottom > scrollDelta) {
+    view.move(0.f, scrollDelta);
+  } else {
+    view.move(0.f, scrollDownThreshold - viewYPosBottom);        
+  }
+
+  this->setWatchableView(view);
 }

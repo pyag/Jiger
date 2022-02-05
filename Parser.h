@@ -8,13 +8,15 @@ class Parser {
 public:
   std::string buffer;
   int curIndex;
+  int startIndex, endIndex;
 
-  Parser();
-  Parser(std::string &);
+  Parser ();
+  Parser (const std::string &);
 
-  void loadBuffer(std::string &);
-  bool hasNextToken();
-  std::string getToken();
+  void loadBuffer (const std::string &);
+  void loadBuffer (const std::string &, int, int);
+  bool hasNextToken ();
+  std::string getToken ();
 };
 
 #endif

@@ -42,11 +42,14 @@ void populateDataNode (const std::string &path, DataNode *dn, std::vector <std::
   #endif
 }
 
+#if defined(_WIN32)
 void windowsSystemFileBrowse (const std::string &path, DataNode *dn, std::vector <std::string> &excluders) {
   // Yet to design a function for Windows system file browsing
   return;
 }
+#endif
 
+#if defined(__APPLE__) || defined(__MACH__) || defined(__linux__)
 void nixSystemFileBrowse(const std::string &path, DataNode *dn, std::vector <std::string> &excluders) {
   DIR *dir;
   struct dirent *entry;
@@ -95,3 +98,4 @@ void nixSystemFileBrowse(const std::string &path, DataNode *dn, std::vector <std
     closedir(dir);
   }
 }
+#endif
