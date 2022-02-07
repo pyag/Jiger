@@ -4,7 +4,11 @@
 Explorer::Explorer (GlobalConfig &config, sf::RenderWindow *window): Div(window) {
   this->config = config;
   this->workplace = NULL;
-  this->activeEditor = NULL;
+  this->activeDataNodeId = -1;
+
+  this->tabTray = new TabTray(&config, Div::getWindow());
+  this->tabTray->loadConfigs();
+  this->tabTray->registerExplorerActiveDnId(&this->activeDataNodeId);
 
   this->excludedFilePatterns.push_back(".");
   this->dataNodeId = 0;
@@ -24,9 +28,11 @@ void Explorer::pollUserEvents (sf::Event &event) {
       int clickedDnId = this->fileDivs[i]->dn->id;
 
       if (this->openEditors.find(clickedDnId) != this->openEditors.end()) {
-        this->activeEditor = this->openEditors[clickedDnId];
+        this->activeDataNodeId = clickedDnId;
+        this->openEditors[clickedDnId]->loadEditorConfigs();
+        this->tabTray->setActiveTab(clickedDnId);
         return;
-      } 
+      }
 
       EditorSpace *newEditor = new EditorSpace(
         this->fileDivs[i]->dn->fullpath,
@@ -34,9 +40,10 @@ void Explorer::pollUserEvents (sf::Event &event) {
         Div::getWindow()
       );
       newEditor->loadEditorConfigs();
-      
-      this->activeEditor = newEditor;
+
+      this->activeDataNodeId = clickedDnId;
       this->openEditors[clickedDnId] = newEditor;
+      this->tabTray->push(this->fileDivs[i]->dn->filename, clickedDnId, newEditor);
 
       return;
     }
@@ -200,5 +207,8 @@ void Explorer::drawOnScreen (sf::RenderWindow &window) {
 
     window.draw(word);
   }
+}
 
+bool Explorer::isAnyEditorActive () {
+  return (this->activeDataNodeId != -1);
 }

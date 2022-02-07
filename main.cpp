@@ -79,7 +79,6 @@ int main() {
   explorer.setWatchableView(explorerView);
   /** Explorer configuration ends **/
 
-
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -88,24 +87,33 @@ int main() {
       }
 
       // Editor Space/Box polling events.
-      if (explorer.activeEditor != NULL) {
-        explorer.activeEditor->pollUserEvents(event);
+      if (explorer.isAnyEditorActive()) {
+        int id = explorer.activeDataNodeId;
+        explorer.openEditors[id]->pollUserEvents(event);
       }
 
       explorer.pollUserEvents(event);
+      if (!explorer.tabTray->empty()) {
+        explorer.tabTray->pollUserEvents(event);
+      }
     }
 
     window.clear(bgColor);
 
-    if (explorer.activeEditor != NULL) {
-      window.setView(explorer.activeEditor->getWatchableView());
-      explorer.activeEditor->fillColor(bgColor);
-      explorer.activeEditor->drawOnScreen(window);
+    if (explorer.isAnyEditorActive()) {
+      int id = explorer.activeDataNodeId;
+      window.setView(explorer.openEditors[id]->getWatchableView());
+      explorer.openEditors[id]->fillColor(bgColor);
+      explorer.openEditors[id]->drawOnScreen(window);
     }
 
     window.setView(explorer.getWatchableView());
     explorer.fillColor(explorerColor);
     explorer.drawOnScreen(window);
+
+    window.setView(explorer.tabTray->getWatchableView());
+    explorer.tabTray->fillColor(blue);
+    explorer.tabTray->drawOnScreen(window);
 
     window.display();
   }

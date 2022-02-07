@@ -24,10 +24,13 @@ GlobalConfig::GlobalConfig () {
   this->lineNumberThresholdWidth = 3;
 
   this->editorXPos = 270.0f;
-  this->editorYPos = 50.0f;
+  this->editorYPos = 37.0f;
 
   this->explorerXPos = 0.0f;
   this->explorerYPos = 0.0f;
+
+  this->tabXPadding = 10.0f;
+  this->tabTrayHeight = this->editorYPos;
 
   this->cursorBlinkTimeInSeconds = 550;
 
@@ -112,6 +115,14 @@ void GlobalConfig::setExplorerXSize (float xSize) {
 
 void GlobalConfig::setExplorerYSize (float ySize) {
   this->explorerYSize = ySize;
+}
+
+void GlobalConfig::setTabXPadding (float xPadding) {
+  this->tabXPadding = xPadding;
+}
+
+void GlobalConfig::setTabTrayHeight (float height) {
+  this->tabTrayHeight = height;
 }
 
 void GlobalConfig::setCursorBlinkTimeInSeconds (int seconds) {
@@ -255,6 +266,14 @@ float GlobalConfig::getExplorerXSize () {
 
 float GlobalConfig::getExplorerYSize () {
   return this->explorerYSize;
+}
+
+float GlobalConfig::getTabXPadding () {
+  return this->tabXPadding;
+}
+
+float GlobalConfig::getTabTrayHeight () {
+  return this->tabTrayHeight;
 }
 
 int GlobalConfig::getCursorBlinkTimeInSeconds () {

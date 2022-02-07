@@ -11,6 +11,7 @@
 #include "DataNode.h"
 #include "DataNodeElement.h"
 #include "EditorSpace.h"
+#include "TabTray.h"
 
 class Explorer: public Div {
 public:
@@ -21,11 +22,13 @@ public:
   std::vector <DataNodeElement *> fileDivs;
   int dataNodeId;
 
-  EditorSpace *activeEditor;
+  int activeDataNodeId;
+  TabTray *tabTray;
   std::vector <std::string> excludedFilePatterns;
 
   Explorer (GlobalConfig &, sf::RenderWindow *);
 
+  bool isAnyEditorActive ();
   void pollUserEvents (sf::Event &);
 
   void setWatchableView (sf::View &);
