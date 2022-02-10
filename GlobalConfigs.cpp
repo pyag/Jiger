@@ -29,8 +29,12 @@ GlobalConfig::GlobalConfig () {
   this->explorerXPos = 0.0f;
   this->explorerYPos = 0.0f;
 
-  this->tabXPadding = 10.0f;
+  this->tabTrayWidth = this->editorXSize;
   this->tabTrayHeight = this->editorYPos;
+
+  this->tabXPadding = 10.0f;
+  this->tabWidth = -1.0f;
+  this->tabHeight = this->tabTrayHeight;
 
   this->cursorBlinkTimeInSeconds = 550;
 
@@ -117,12 +121,24 @@ void GlobalConfig::setExplorerYSize (float ySize) {
   this->explorerYSize = ySize;
 }
 
-void GlobalConfig::setTabXPadding (float xPadding) {
-  this->tabXPadding = xPadding;
+void GlobalConfig::setTabTrayWidth (float width) {
+  this->tabTrayWidth = width;
 }
 
 void GlobalConfig::setTabTrayHeight (float height) {
   this->tabTrayHeight = height;
+}
+
+void GlobalConfig::setTabXPadding (float xPadding) {
+  this->tabXPadding = xPadding;
+}
+
+void GlobalConfig::setTabWidth (float width) {
+  this->tabWidth = width;
+}
+
+void GlobalConfig::setTabHeight (float height) {
+  this->tabHeight = height;
 }
 
 void GlobalConfig::setCursorBlinkTimeInSeconds (int seconds) {
@@ -270,6 +286,18 @@ float GlobalConfig::getExplorerYSize () {
 
 float GlobalConfig::getTabXPadding () {
   return this->tabXPadding;
+}
+
+float GlobalConfig::getTabWidth () {
+  return this->tabWidth;
+}
+
+float GlobalConfig::getTabHeight () {
+  return this->tabHeight;
+}
+
+float GlobalConfig::getTabTrayWidth () {
+  return this->tabTrayWidth;
 }
 
 float GlobalConfig::getTabTrayHeight () {

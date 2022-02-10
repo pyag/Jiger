@@ -44,7 +44,8 @@ struct GlobalConfig {
   float explorerXPos, explorerYPos;
   float explorerXSize, explorerYSize;
 
-  float tabXPadding, tabTrayHeight;
+  float tabWidth, tabHeight, tabXPadding;
+  float tabTrayWidth, tabTrayHeight;
 
   int cursorBlinkTimeInSeconds;
 
@@ -86,6 +87,10 @@ struct GlobalConfig {
   void setExplorerYSize (float);
 
   void setTabXPadding (float);
+  void setTabWidth (float);
+  void setTabHeight (float);
+
+  void setTabTrayWidth (float);
   void setTabTrayHeight (float);
 
   void setCursorBlinkTimeInSeconds (int);
@@ -124,6 +129,10 @@ struct GlobalConfig {
   float getExplorerYSize ();
 
   float getTabXPadding ();
+  float getTabWidth ();
+  float getTabHeight ();
+
+  float getTabTrayWidth ();
   float getTabTrayHeight ();
 
   int getCursorBlinkTimeInSeconds ();

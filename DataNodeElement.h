@@ -6,17 +6,14 @@
 #include "Div.h"
 
 struct DataNodeElement : public Div {
-  bool mousePressedState;
   bool isDirectory;
   DataNode *dn;
-  // Explorer *parentExplorer;
-  GlobalConfig config;
+  GlobalConfig *config;
 
-  DataNodeElement (DataNode *, GlobalConfig &, sf::RenderWindow *);
+  DataNodeElement (DataNode *, GlobalConfig *, sf::RenderWindow *);
   void pollUserEvents (sf::Event &);
 
-  bool onClick (sf::Event &);
-  void onHover ();
+  void onHover (sf::View *);
 };
 
 #endif

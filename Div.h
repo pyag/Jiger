@@ -10,9 +10,11 @@ public:
   bool percentage;
   sf::RectangleShape divBox;
 
+  bool mousePressedState;
+  sf::View watchableView;
+
   sf::RenderWindow *window;
 
-  Div () {}
   Div (sf::RenderWindow *);
   
   void setSize(float, float, bool percentage = false);
@@ -21,13 +23,24 @@ public:
   sf::Vector2f getSize();
 
   void fillColor(const sf::Color &);
-  void drawOnScreen(sf::RenderWindow &);
+  void drawOnScreen();
 
   void pollEvents(sf::Event &);
+
+  bool clicked (sf::Event &, float x, float y);
+  bool onClick (sf::Event &);
+  bool onClick (sf::Event &, sf::View *);
+
+  bool onhover ();
+  bool onhover (sf::View *);
+
+  void setWatchableView (sf::View &);
+  sf::View &getWatchableView ();
 
   sf::RenderWindow *getWindow ();
 
   bool mouseInMyArea(float, float);
+  void adjustView (float, float);
 };
 
 #endif

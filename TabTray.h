@@ -26,8 +26,6 @@ public:
 
   GlobalConfig *config;
 
-  sf::View watchableView;
-
   TabTray (GlobalConfig *, sf::RenderWindow *);
 
   void push (std::string &, int, EditorSpace *);
@@ -38,11 +36,8 @@ public:
   void registerExplorerActiveDnId (int *);
   void loadConfigs ();
 
-  void setWatchableView (sf::View &);
-  sf::View &getWatchableView ();
-
   void pollUserEvents (sf::Event &);
-  void drawOnScreen(sf::RenderWindow &);
+  void drawOnScreen();
 
   void drawTabs (int, float &);
 };

@@ -1,11 +1,12 @@
 #include "EditorSpace.h"
 
-EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig &config, sf::RenderWindow *window): Div(window) {
+EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::RenderWindow *window): Div(window) {
   this->fileLoc = fileLoc;
   
   this->buf = new Buffer(this->fileLoc);
   this->buf->loadBuffer();
 
+  this->cursor = new Div(window);
   this->cursorIndex = 0;
   this->curLine = 0;
 
@@ -77,31 +78,14 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
   // Resizing Div on window
   if (event.type == sf::Event::Resized) {
     // Adjust editor size
-    float newEditorWidth = event.size.width - this->config.getEditorXPos();
-    float newEditorHeight = event.size.height - this->config.getEditorYPos();
-    this->config.setEditorXSize(newEditorWidth);
-    this->config.setEditorYSize(newEditorHeight);
+    float newEditorWidth = event.size.width - this->config->getEditorXPos();
+    float newEditorHeight = event.size.height - this->config->getEditorYPos();
+    this->config->setEditorXSize(newEditorWidth);
+    this->config->setEditorYSize(newEditorHeight);
 
     this->setSize(newEditorWidth, newEditorHeight);
 
-    // Adjusting Div view
-    sf::View editorView = this->getWatchableView();
-
-    editorView.reset(sf::FloatRect(
-      this->config.getEditorXPos(),
-      this->config.getEditorYPos(),
-      this->config.getEditorXSize(),
-      this->config.getEditorYSize()
-    ));
-
-    editorView.setViewport(sf::FloatRect(
-      this->config.getEditorXPos() / event.size.width,
-      this->config.getEditorYPos() / event.size.height,
-      this->config.getEditorXSize() / event.size.width,
-      this->config.getEditorYSize() / event.size.height
-    ));
-
-    this->setWatchableView(editorView);
+    this->adjustView(event.size.width, event.size.height);
     return;
   }
 
@@ -215,16 +199,16 @@ void EditorSpace::setLanguage (ProgLang lang) {
   this->langSelected = lang;
 }
 
-void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
-  Div::drawOnScreen(window);
+void EditorSpace::drawOnScreen () {
+  Div::drawOnScreen();
 
   sf::Color fontColor(
-    this->config.getFontColor().r,
-    this->config.getFontColor().g,
-    this->config.getFontColor().b
+    this->config->getFontColor().r,
+    this->config->getFontColor().g,
+    this->config->getFontColor().b
   );
 
-  sf::Font editorFont = this->config.getFont();
+  sf::Font editorFont = this->config->getFont();
   sf::Text word;
   ProgLang languageSelected = this->langSelected;
 
@@ -240,7 +224,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   this->curLine = this->buf->getLineNumberByPos(this->cursorIndex);
 
   word.setFont(editorFont);
-  word.setCharacterSize(this->config.getFontSize());
+  word.setCharacterSize(this->config->getFontSize());
   word.setColor(fontColor);
 
   sf::View view = this->getWatchableView();
@@ -248,9 +232,9 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
   float viewBottom = view.getCenter().y + (view.getSize().y / 2.0f);
 
   int lineTop =
-    (viewTop - Div::getPosition().y) / this->config.getWordHeight();
+    (viewTop - Div::getPosition().y) / this->config->getWordHeight();
   int lineBottom =
-    (viewBottom - Div::getPosition().y) / this->config.getWordHeight();
+    (viewBottom - Div::getPosition().y) / this->config->getWordHeight();
   lineBottom =
     lineBottom > this->buf->getLineCount()
     ? this->buf->getLineCount()
@@ -265,11 +249,11 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
     : endIndex;
 
   if (!(this->hideLineNumber)) {
-    XResetPos += this->getXTextOffset() * this->config.getWordWidth();
+    XResetPos += this->getXTextOffset() * this->config->getWordWidth();
     this->displayLineNumber(lineTop, lineBottom);
   }
 
-  yWordPosition += lineTop * this->config.getWordHeight();
+  yWordPosition += lineTop * this->config->getWordHeight();
   Parser *parser = new Parser();
   parser->loadBuffer(this->buf->getSource(), startIndex, endIndex);
 
@@ -282,41 +266,41 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
 
     if (wordText == "\n") {
       xWordPosition = 0;
-      yWordPosition += this->config.getWordHeight();
+      yWordPosition += this->config->getWordHeight();
       continue;
     }
 
     for (int i = 0; i < wordText.length(); i++) {
-      float x = XResetPos + (float)(xWordPosition++) * this->config.getWordWidth();
+      float x = XResetPos + (float)(xWordPosition++) * this->config->getWordWidth();
       float y = (float)yWordPosition;
 
       word.setString(wordText[i]);
       word.setPosition(sf::Vector2f(x, y));
 
-      window.draw(word);
+      this->getWindow()->draw(word);
     }
   }
 
-  this->cursor.setSize(
-    this->config.getCursorWidth(),
-    this->config.getCursorHeight()
+  this->cursor->setSize(
+    this->config->getCursorWidth(),
+    this->config->getCursorHeight()
   );
 
-  this->cursor.fillColor(fontColor);
+  this->cursor->fillColor(fontColor);
 
   float cursorX = XResetPos +
     (this->cursorIndex - this->buf->getLineStartPos(this->curLine)) *
-    this->config.getWordWidth();
+    this->config->getWordWidth();
 
   float cursorY = Div::getPosition().y +
-    this->curLine * this->config.getWordHeight() +
+    this->curLine * this->config->getWordHeight() +
     1.0f;
 
-  this->cursor.setPosition(cursorX, cursorY);
+  this->cursor->setPosition(cursorX, cursorY);
 
   if (
     this->clock.getElapsedTime() >
-    sf::milliseconds(this->config.getCursorBlinkTimeInSeconds())
+    sf::milliseconds(this->config->getCursorBlinkTimeInSeconds())
   ) {
     this->showCursor = !this->showCursor;
     this->clock.restart();
@@ -326,7 +310,7 @@ void EditorSpace::drawOnScreen (sf::RenderWindow &window) {
     (this->curLine >= lineTop && this->curLine <= lineBottom)
     && this->showCursor
   ) {
-    this->cursor.drawOnScreen(window);
+    this->cursor->drawOnScreen();
   }
 
   this->updateEditorSize();
@@ -341,13 +325,13 @@ float EditorSpace::getXTextOffset () {
     lineCount /= 10;
   }
 
-  if (lineCountDigits < this->config.getLineNumberThresholdWidth()) {
-    lineCountDigits = this->config.getLineNumberThresholdWidth();
+  if (lineCountDigits < this->config->getLineNumberThresholdWidth()) {
+    lineCountDigits = this->config->getLineNumberThresholdWidth();
   }
 
   // These two features below may be used in future.
-  float breakPointMarkWidth = this->config.getBreakPointMarkWidth();
-  float blockFoldingMarkWidth = this->config.getBlockFoldingMarkWidth();
+  float breakPointMarkWidth = this->config->getBreakPointMarkWidth();
+  float blockFoldingMarkWidth = this->config->getBlockFoldingMarkWidth();
 
   return (lineCountDigits + breakPointMarkWidth + blockFoldingMarkWidth);
 }
@@ -356,24 +340,24 @@ void EditorSpace::displayLineNumber (int start, int end) {
   float xNumPos, yNumPos, xNumPosPadding;
   sf::Vector2f parentDivPos = Div::getPosition();
   sf::Text num;
-  sf::Font editorFont = this->config.getFont();
+  sf::Font editorFont = this->config->getFont();
 
   sf::Color lineNumberColor(
-    this->config.getLineNumberColor().r,
-    this->config.getLineNumberColor().g,
-    this->config.getLineNumberColor().b
+    this->config->getLineNumberColor().r,
+    this->config->getLineNumberColor().g,
+    this->config->getLineNumberColor().b
   );
 
   sf::Color curLineNumberColor(
-    this->config.getCurLineNumberColor().r,
-    this->config.getCurLineNumberColor().g,
-    this->config.getCurLineNumberColor().b
+    this->config->getCurLineNumberColor().r,
+    this->config->getCurLineNumberColor().g,
+    this->config->getCurLineNumberColor().b
   );
 
-  int lineNumThresh = this->config.getLineNumberThresholdWidth();
+  int lineNumThresh = this->config->getLineNumberThresholdWidth();
 
   num.setFont(editorFont);
-  num.setCharacterSize(this->config.getFontSize());
+  num.setCharacterSize(this->config->getFontSize());
 
   int digitCount = 0;
   for (int tmpNum = this->buf->getLineCount(); tmpNum;) {
@@ -388,8 +372,8 @@ void EditorSpace::displayLineNumber (int start, int end) {
   for (int line = start; line < end; line++) {
     
     std::string lineStr = std::to_string(line + 1);
-    xNumPos = this->config.getBreakPointMarkWidth();
-    yNumPos = line * this->config.getWordHeight();
+    xNumPos = this->config->getBreakPointMarkWidth();
+    yNumPos = line * this->config->getWordHeight();
     xNumPosPadding = lineNumThresh - lineStr.length() > 0 ? lineNumThresh - lineStr.length() : 0;
 
     if (line == this->curLine) {
@@ -402,72 +386,48 @@ void EditorSpace::displayLineNumber (int start, int end) {
       num.setString(lineStr[i]);
       num.setPosition(
         sf::Vector2f(
-          parentDivPos.x + (float)(xNumPosPadding + xNumPos++) * this->config.getWordWidth(),
+          parentDivPos.x + (float)(xNumPosPadding + xNumPos++) * this->config->getWordWidth(),
           parentDivPos.y + (float)yNumPos
         )
       );
 
-      Div::getWindow()->draw(num);
+      this->getWindow()->draw(num);
     }
   }
 }
 
-void EditorSpace::setWatchableView (sf::View &view) {
-  this->watchableView = view;
-}
-
-sf::View &EditorSpace::getWatchableView () {
-  return this->watchableView;
-}
-
 void EditorSpace::loadEditorConfigs() {
   this->setPosition(
-    this->config.getEditorXPos(),
-    this->config.getEditorYPos()
+    this->config->getEditorXPos(),
+    this->config->getEditorYPos()
   );
 
   this->setSize(
-    this->config.getEditorXSize(),
-    this->config.getEditorYSize()
+    this->config->getEditorXSize(),
+    this->config->getEditorYSize()
   );
 
-  sf::View editorView = Div::getWindow()->getView();
-
-  editorView.reset(sf::FloatRect(
-    this->config.getEditorXPos(),
-    this->config.getEditorYPos(),
-    this->config.getEditorXSize(),
-    this->config.getEditorYSize()
-  ));
-
-  editorView.setViewport(sf::FloatRect(
-    this->config.getEditorXPos() / Div::getWindow()->getSize().x,
-    this->config.getEditorYPos() / Div::getWindow()->getSize().y,
-    this->config.getEditorXSize() / Div::getWindow()->getSize().x,
-    this->config.getEditorYSize() / Div::getWindow()->getSize().y
-  ));
-
-  this->setWatchableView(editorView);
+  this->adjustView(this->getWindow()->getSize().x, this->getWindow()->getSize().y);
 }
 
 void EditorSpace::updateEditorSize () {
   // Updating Editor Space Div size, if required
-  int newXSize = Div::getSize().x;
-  int newYSize = this->buf->getLineCount() * this->config.getWordHeight();
+  int newXSize = this->getSize().x;
+  int newYSize = this->buf->getLineCount() * this->config->getWordHeight();
 
-  if (newYSize < Div::getWindow()->getSize().y) {
-    newYSize = Div::getWindow()->getSize().y;
+  if (newYSize < this->getWindow()->getSize().y) {
+    newYSize = this->getWindow()->getSize().y;
   }
 
-  Div::setSize(newXSize, newYSize);
+  this->setSize(newXSize, newYSize);
 }
 
 void EditorSpace::scrollUpByLines (int lines) {
   sf::View view = this->getWatchableView();
 
   float viewYPosTop = view.getCenter().y - view.getSize().y / 2.0f;
-  float scrollDelta = lines * this->config.getWordHeight();
-  float scrollUpThreshold = this->config.getEditorYPos();
+  float scrollDelta = lines * this->config->getWordHeight();
+  float scrollUpThreshold = this->config->getEditorYPos();
 
   // Stop scroll up when reaching top of the text
   if (viewYPosTop - scrollUpThreshold > scrollDelta) {
@@ -484,12 +444,12 @@ void EditorSpace::scrollDownByLines (int lines) {
 
   float viewYPosBottom = view.getCenter().y + view.getSize().y / 2.0f;
   
-  float scrollDownThreshold = this->config.getEditorYPos();
+  float scrollDownThreshold = this->config->getEditorYPos();
   scrollDownThreshold += 
-    ((this->buf->getLineCount() - 1) * this->config.getWordHeight());
-  scrollDownThreshold += this->config.getEditorYSize();
+    ((this->buf->getLineCount() - 1) * this->config->getWordHeight());
+  scrollDownThreshold += this->config->getEditorYSize();
 
-  float scrollDelta = lines * this->config.getWordHeight();
+  float scrollDelta = lines * this->config->getWordHeight();
 
   // Stop scroll down below last line of text
   if (scrollDownThreshold - viewYPosBottom > scrollDelta) {

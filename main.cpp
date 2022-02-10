@@ -49,7 +49,7 @@ int main() {
 
   /** Explorer configuration starts **/
 
-  Explorer explorer(globalEditorConfig, &window);
+  Explorer explorer(&globalEditorConfig, &window);
 
   explorer.setPosition(
     globalEditorConfig.getExplorerXPos(),
@@ -104,16 +104,16 @@ int main() {
       int id = explorer.activeDataNodeId;
       window.setView(explorer.openEditors[id]->getWatchableView());
       explorer.openEditors[id]->fillColor(bgColor);
-      explorer.openEditors[id]->drawOnScreen(window);
+      explorer.openEditors[id]->drawOnScreen();
     }
 
     window.setView(explorer.getWatchableView());
     explorer.fillColor(explorerColor);
-    explorer.drawOnScreen(window);
+    explorer.drawOnScreen();
 
     window.setView(explorer.tabTray->getWatchableView());
     explorer.tabTray->fillColor(blue);
-    explorer.tabTray->drawOnScreen(window);
+    explorer.tabTray->drawOnScreen();
 
     window.display();
   }

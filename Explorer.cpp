@@ -1,12 +1,12 @@
 #include "Explorer.h"
 #include "FileOperations.h"
 
-Explorer::Explorer (GlobalConfig &config, sf::RenderWindow *window): Div(window) {
+Explorer::Explorer (GlobalConfig *config, sf::RenderWindow *window): Div(window) {
   this->config = config;
   this->workplace = NULL;
   this->activeDataNodeId = -1;
 
-  this->tabTray = new TabTray(&config, Div::getWindow());
+  this->tabTray = new TabTray(config, Div::getWindow());
   this->tabTray->loadConfigs();
   this->tabTray->registerExplorerActiveDnId(&this->activeDataNodeId);
 
@@ -19,10 +19,10 @@ void Explorer::pollUserEvents (sf::Event &event) {
 
   for (int i = 0; i < this->fileDivs.size(); i++) {
     this->fileDivs[i]->pollUserEvents(event);
+    this->fileDivs[i]->onHover(&this->getWatchableView());
 
     // Checks onclick event
-    if (this->fileDivs[i]->onClick(event)) {
-
+    if (this->fileDivs[i]->onClick(event, &this->getWatchableView())) {
       // Open editor according to the Data Node clicked
 
       int clickedDnId = this->fileDivs[i]->dn->id;
@@ -37,7 +37,7 @@ void Explorer::pollUserEvents (sf::Event &event) {
       EditorSpace *newEditor = new EditorSpace(
         this->fileDivs[i]->dn->fullpath,
         this->config,
-        Div::getWindow()
+        this->getWindow()
       );
       newEditor->loadEditorConfigs();
 
@@ -52,40 +52,23 @@ void Explorer::pollUserEvents (sf::Event &event) {
   // Resizing Div on window
   if (event.type == sf::Event::Resized) {
     // Adjust editor size
-    float newExplorerWidth = this->config.getEditorXPos();
+    float newExplorerWidth = this->config->getEditorXPos();
     float newExplorerHeight = event.size.height;
 
-    this->config.setExplorerXSize(newExplorerWidth);
-    this->config.setExplorerYSize(newExplorerHeight);
+    this->config->setExplorerXSize(newExplorerWidth);
+    this->config->setExplorerYSize(newExplorerHeight);
 
     this->setSize(newExplorerWidth, newExplorerHeight);
 
-    // Adjusting Div view
-    sf::View explorerView = this->getWatchableView();
-
-    explorerView.reset(sf::FloatRect(
-      this->config.getExplorerXPos(),
-      this->config.getExplorerYPos(),
-      this->config.getExplorerXSize(),
-      this->config.getExplorerYSize()
-    ));
-
-    explorerView.setViewport(sf::FloatRect(
-      this->config.getExplorerXPos() / event.size.width,
-      this->config.getExplorerYPos() / event.size.height,
-      this->config.getExplorerXSize() / event.size.width,
-      this->config.getExplorerYSize() / event.size.height
-    ));
-
-    this->setWatchableView(explorerView);
+    this->adjustView(event.size.width, event.size.height);
     return;
   }
 
   // Mouse Scroll Events on Editor
   if (event.type == sf::Event::MouseWheelScrolled) {
-    if (!Div::mouseInMyArea(
-      (float)sf::Mouse::getPosition(*Div::getWindow()).x,
-      (float)sf::Mouse::getPosition(*Div::getWindow()).y
+    if (!this->mouseInMyArea(
+      (float)sf::Mouse::getPosition(*this->getWindow()).x,
+      (float)sf::Mouse::getPosition(*this->getWindow()).y
     )) return;
 
     sf::View currentView = this->getWatchableView();
@@ -96,7 +79,7 @@ void Explorer::pollUserEvents (sf::Event &event) {
     if (event.mouseWheelScroll.delta > 0) {
       // Stop scroll up when reaching top of the text
 
-      float scrollUpThreshold = this->config.getExplorerYPos();
+      float scrollUpThreshold = this->config->getExplorerYPos();
 
       if (viewYPosTop - scrollUpThreshold > 40.0f) {
         currentView.move(0.f, -40.f);
@@ -108,8 +91,8 @@ void Explorer::pollUserEvents (sf::Event &event) {
     // Mouse scroll down
     if (event.mouseWheelScroll.delta < 0) {
       // Stop scroll down below last line of text
-      float scrollDownThreshold = this->config.getExplorerYPos();
-      scrollDownThreshold += this->config.getExplorerYSize() + 500.0f;
+      float scrollDownThreshold = this->config->getExplorerYPos();
+      scrollDownThreshold += this->config->getExplorerYSize() + 500.0f;
 
       if (scrollDownThreshold - viewYPosBottom > 40.0f) {
         currentView.move(0.f, 40.f);
@@ -131,35 +114,29 @@ void Explorer::loadWorkPlace (const std::string &path) {
   for (int i = 0; i < this->workplace->children.size(); i++) {
     DataNode *dn = this->workplace->children[i];
     dn->id = this->dataNodeId++;
+
     DataNodeElement *displayDn = new DataNodeElement(
       dn,
       this->config,
-      Div::getWindow()
+      this->getWindow()
     );
+
     this->fileDivs.push_back(displayDn);
   }
 }
 
-void Explorer::setWatchableView (sf::View &view) {
-  this->watchableView = view;
-}
-
-sf::View &Explorer::getWatchableView () {
-  return this->watchableView;
-}
-
-void Explorer::drawOnScreen (sf::RenderWindow &window) {
-  Div::drawOnScreen(window);
+void Explorer::drawOnScreen () {
+  Div::drawOnScreen();
 
   if (this->workplace == NULL) {
     return;
   }
 
-  float wordWidth = this->config.getExplorerWordWidth();
-  float wordHeight = this->config.getExplorerWordHeight();
+  float wordWidth = this->config->getExplorerWordWidth();
+  float wordHeight = this->config->getExplorerWordHeight();
 
-  float parentDivXPos = Div::getPosition().x;
-  float parentDivYPos = Div::getPosition().y;
+  float parentDivXPos = this->getPosition().x;
+  float parentDivYPos = this->getPosition().y;
 
   float leftXPadding = 25.0f;
   float topYPadding = 50.0f;
@@ -168,16 +145,16 @@ void Explorer::drawOnScreen (sf::RenderWindow &window) {
   parentDivYPos += topYPadding;
 
   sf::Color fontColor(
-    this->config.getExplorerFontColor().r,
-    this->config.getExplorerFontColor().g,
-    this->config.getExplorerFontColor().b
+    this->config->getExplorerFontColor().r,
+    this->config->getExplorerFontColor().g,
+    this->config->getExplorerFontColor().b
   );
-  sf::Font explorerFont = this->config.getExplorerFont();
+  sf::Font explorerFont = this->config->getExplorerFont();
 
   sf::Text word;
 
   word.setFont(explorerFont);
-  word.setCharacterSize(this->config.getExplorerFontSize());
+  word.setCharacterSize(this->config->getExplorerFontSize());
   word.setColor(fontColor);
 
   float paintXPos = 0.0f;
@@ -191,11 +168,11 @@ void Explorer::drawOnScreen (sf::RenderWindow &window) {
     DataNodeElement *dnDiv = this->fileDivs[i];
 
     dnDiv->setPosition(
-      Div::getPosition().x,
+      this->getPosition().x,
       parentDivYPos + paintYPos
     );
-    dnDiv->setSize(Div::getSize().x, wordHeight);
-    dnDiv->drawOnScreen(*Div::getWindow());
+    dnDiv->setSize(this->getSize().x, wordHeight);
+    dnDiv->drawOnScreen();
 
     std::string &filename = this->workplace->children[i]->filename;
 
@@ -205,7 +182,7 @@ void Explorer::drawOnScreen (sf::RenderWindow &window) {
       parentDivYPos + paintYPos + heightBuf
     ));
 
-    window.draw(word);
+    this->getWindow()->draw(word);
   }
 }
 

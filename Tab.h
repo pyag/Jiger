@@ -15,20 +15,13 @@ public:
   EditorSpace *editor;
 
   int width;
-  bool mousePressedState;
 
-  GlobalConfig config;
+  GlobalConfig *config;
 
-  sf::View watchableView;
-
-  Tab (std::string &, int, EditorSpace *, sf::RenderWindow *);
-  void setWatchableView (sf::View &);
-  sf::View &getWatchableView ();
+  Tab (std::string &, int, EditorSpace *, GlobalConfig *, sf::RenderWindow *);
 
   void pollUserEvents (sf::Event &);
-  void drawOnScreen(sf::RenderWindow &);
-
-  bool onClick (sf::Event &);
+  void drawOnScreen();
 };
 
 #endif

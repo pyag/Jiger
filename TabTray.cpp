@@ -7,7 +7,7 @@ TabTray::TabTray (GlobalConfig *config, sf::RenderWindow *window) : Div(window) 
 }
 
 void TabTray::push (std::string &name, int dnId, EditorSpace *editor) {
-  Tab *newTab = new Tab(name, dnId, editor, Div::getWindow());
+  Tab *newTab = new Tab(name, dnId, editor, this->config, this->getWindow());
 
   this->tabs.push_back(newTab);
   this->activeDataNodeId = dnId;
@@ -31,7 +31,7 @@ void TabTray::setActiveTab (int id) {
   this->activeDataNodeId = id;
 }
 
-void TabTray::loadConfigs() {
+void TabTray::loadConfigs () {
   this->setPosition(
     this->config->getEditorXPos(),
     this->config->getExplorerYPos()
@@ -42,27 +42,11 @@ void TabTray::loadConfigs() {
     this->config->getTabTrayHeight()
   );
 
-  sf::View tabTrayView = Div::getWindow()->getView();
-
-  tabTrayView.reset(sf::FloatRect(
-    this->config->getEditorXPos(),
-    this->config->getExplorerYPos(),
-    this->config->getEditorXSize(),
-    this->config->getTabTrayHeight()
-  ));
-
-  tabTrayView.setViewport(sf::FloatRect(
-    this->config->getEditorXPos() / Div::getWindow()->getSize().x,
-    this->config->getExplorerYPos() / Div::getWindow()->getSize().y,
-    this->config->getEditorXSize() / Div::getWindow()->getSize().x,
-    this->config->getTabTrayHeight() / Div::getWindow()->getSize().y
-  ));
-
-  this->setWatchableView(tabTrayView);
+  this->adjustView(Div::getWindow()->getSize().x, Div::getWindow()->getSize().y);
 }
 
-void TabTray::drawOnScreen (sf::RenderWindow &window) {
-  Div::drawOnScreen(window);
+void TabTray::drawOnScreen () {
+  Div::drawOnScreen();
 
   float runningX = 0;
   // Just display all tabs
@@ -87,14 +71,14 @@ void TabTray::drawTabs (int x, float &xPos) {
   tabView.reset(sf::FloatRect(tabXPos, tabYPos, tabXSize, tabYSize));
 
   tabView.setViewport(sf::FloatRect(
-    tabXPos / Div::getWindow()->getSize().x,
-    tabYPos / Div::getWindow()->getSize().y,
-    tabXSize / Div::getWindow()->getSize().x,
-    tabYSize / Div::getWindow()->getSize().y
+    tabXPos / this->getWindow()->getSize().x,
+    tabYPos / this->getWindow()->getSize().y,
+    tabXSize / this->getWindow()->getSize().x,
+    tabYSize / this->getWindow()->getSize().y
   ));
 
   this->setWatchableView(tabView);
-  Div::getWindow()->setView(this->getWatchableView());
+  this->getWindow()->setView(this->getWatchableView());
 
   if (this->activeDataNodeId == this->tabs[x]->dnId) {
     this->tabs[x]->fillColor(sf::Color(29, 29, 29));      
@@ -102,18 +86,12 @@ void TabTray::drawTabs (int x, float &xPos) {
     this->tabs[x]->fillColor(sf::Color(39, 39, 41));
   }
 
-  this->tabs[x]->drawOnScreen(*Div::getWindow());
-}
-
-void TabTray::setWatchableView (sf::View &view) {
-  this->watchableView = view;
-}
-
-sf::View &TabTray::getWatchableView () {
-  return this->watchableView;
+  this->tabs[x]->drawOnScreen();
 }
 
 void TabTray::pollUserEvents (sf::Event &event) {
+  Div::pollEvents(event);
+
   for (int i = 0; i < (int) this->tabs.size(); i++) {
     this->tabs[i]->pollUserEvents(event);
 
@@ -129,4 +107,3 @@ void TabTray::pollUserEvents (sf::Event &event) {
 void TabTray::registerExplorerActiveDnId (int *explorerActiveDnId) {
   this->explorerActiveDnId = explorerActiveDnId;
 }
-

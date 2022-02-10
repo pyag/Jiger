@@ -23,26 +23,21 @@ public:
   // Don't worry ProgLang is just an enum
   ProgLang langSelected;
 
-  Div cursor;
+  Div *cursor;
   bool showCursor;
   sf::Clock clock;
   bool hideLineNumber;
 
-  GlobalConfig config;
+  GlobalConfig *config;
 
-  sf::View watchableView;
-
-  EditorSpace(std::string &, GlobalConfig &, sf::RenderWindow *);
+  EditorSpace(std::string &, GlobalConfig *, sf::RenderWindow *);
   void setLanguage(ProgLang);
   void pollUserEvents(sf::Event &);
   void pollKeyboard(int);
-  void drawOnScreen(sf::RenderWindow &);
+  void drawOnScreen();
   float getXTextOffset();
   void displayLineNumber(int, int);
   int getTotalLineCount();
-
-  void setWatchableView (sf::View &);
-  sf::View &getWatchableView ();
 
   void loadEditorConfigs();
   void updateEditorSize();
