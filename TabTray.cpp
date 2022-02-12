@@ -4,10 +4,16 @@ TabTray::TabTray (GlobalConfig *config, sf::RenderWindow *window) : Div(window) 
   this->config = config;
   this->tabs.clear();
   this->activeDataNodeId = -1;
+  this->openTabWidth = 0.0f;
 }
 
 void TabTray::push (std::string &name, int dnId, EditorSpace *editor) {
   Tab *newTab = new Tab(name, dnId, editor, this->config, this->getWindow());
+
+  this->openTabWidth += newTab->width + 1.0f;
+  if (this->openTabWidth > this->getSize().x) {
+    this->setSize(this->openTabWidth, this->getSize().y);
+  }
 
   this->tabs.push_back(newTab);
   this->activeDataNodeId = dnId;
@@ -42,7 +48,7 @@ void TabTray::loadConfigs () {
     this->config->getTabTrayHeight()
   );
 
-  this->adjustView(Div::getWindow()->getSize().x, Div::getWindow()->getSize().y);
+  this->adjustView(this->getWindow()->getSize().x, this->getWindow()->getSize().y);
 }
 
 void TabTray::drawOnScreen () {
@@ -66,24 +72,14 @@ void TabTray::drawTabs (int x, float &xPos) {
   this->tabs[x]->setPosition(tabXPos, tabYPos);
   this->tabs[x]->setSize(tabXSize, tabYSize);
 
-  sf::View &tabView = this->tabs[x]->getWatchableView();
-
-  tabView.reset(sf::FloatRect(tabXPos, tabYPos, tabXSize, tabYSize));
-
-  tabView.setViewport(sf::FloatRect(
-    tabXPos / this->getWindow()->getSize().x,
-    tabYPos / this->getWindow()->getSize().y,
-    tabXSize / this->getWindow()->getSize().x,
-    tabYSize / this->getWindow()->getSize().y
-  ));
-
-  this->setWatchableView(tabView);
-  this->getWindow()->setView(this->getWatchableView());
-
   if (this->activeDataNodeId == this->tabs[x]->dnId) {
-    this->tabs[x]->fillColor(sf::Color(29, 29, 29));      
+    this->tabs[x]->fillColor(sf::Color(
+      this->config->getBgColor().r,
+      this->config->getBgColor().g,
+      this->config->getBgColor().b
+    ));
   } else {
-    this->tabs[x]->fillColor(sf::Color(39, 39, 41));
+    this->tabs[x]->fillColor(sf::Color(50, 50, 51));
   }
 
   this->tabs[x]->drawOnScreen();
@@ -92,15 +88,62 @@ void TabTray::drawTabs (int x, float &xPos) {
 void TabTray::pollUserEvents (sf::Event &event) {
   Div::pollEvents(event);
 
+  if (event.type == sf::Event::Resized) {
+    this->config->setTabTrayWidth(this->config->getEditorXSize());
+    this->config->setTabTrayHeight(this->config->getTabTrayHeight());
+
+    this->setSize(
+      this->config->getEditorXSize(),
+      this->config->getTabTrayHeight()
+    );
+
+    this->adjustView(event.size.width, event.size.height);
+  }
+
+  if (event.type == sf::Event::MouseWheelScrolled) {
+    if (!this->mouseInMyArea(
+      (float)sf::Mouse::getPosition(*this->getWindow()).x,
+      (float)sf::Mouse::getPosition(*this->getWindow()).y
+    )) return;
+
+    sf::View view = this->getWatchableView();
+    float leftXPos = view.getCenter().x - view.getSize().x / 2.0f;
+    float rightXPos = view.getCenter().x + view.getSize().x / 2.0f;
+
+    // Scroll up will be used for scolling to left
+    if (event.mouseWheelScroll.delta > 0) {
+      float scrollLeftThresh = this->getPosition().x;
+
+      if (leftXPos - scrollLeftThresh > 40.0f) {
+        view.move(-40.0f, 0.0f);
+      } else {
+        view.move(scrollLeftThresh - leftXPos, 0.0f);
+      }
+    }
+
+    // Scroll down will be used for scolling to right
+    if (event.mouseWheelScroll.delta < 0) {
+      float scrollRightThresh = this->getPosition().x + this->getSize().x + 200.0f;
+
+      if (scrollRightThresh - rightXPos > 40.0f) {
+        view.move(40.0f, 0.0f);
+      } else {
+        view.move(scrollRightThresh - rightXPos, 0.f);        
+      }
+    }
+
+    this->setWatchableView(view);
+    return;
+  }
+
   for (int i = 0; i < (int) this->tabs.size(); i++) {
     this->tabs[i]->pollUserEvents(event);
 
-    if (this->tabs[i]->onClick(event)) {
+    if (this->tabs[i]->onClick(event, &this->getWatchableView())) {
       this->tabs[i]->editor->loadEditorConfigs();
       this->activeDataNodeId = this->tabs[i]->dnId;
       *(this->explorerActiveDnId) = this->activeDataNodeId;
     }
-
   }
 }
 

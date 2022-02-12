@@ -23,6 +23,7 @@ class TabTray : public Div {
 public:
   std::vector <Tab *> tabs;
   int activeDataNodeId;
+  int openTabWidth;
 
   GlobalConfig *config;
 

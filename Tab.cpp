@@ -24,18 +24,15 @@ void Tab::pollUserEvents (sf::Event &event) {
 void Tab::drawOnScreen () {
   Div::drawOnScreen();
 
-  sf::Color fontColor(
-    this->config->getFontColor().r,
-    this->config->getFontColor().g,
-    this->config->getFontColor().b
-  );
+  sf::Color tabFontColor(180, 180, 180);
+  sf::Color activeTabFontColor(200, 200, 200);
   sf::Font explorerFont = this->config->getExplorerFont();
 
   sf::Text word;
 
   word.setFont(explorerFont);
   word.setCharacterSize(this->config->getExplorerFontSize());
-  word.setColor(fontColor);
+  word.setColor(tabFontColor);
 
   word.setString(this->name);
   word.setPosition(sf::Vector2f(

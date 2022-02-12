@@ -19,6 +19,12 @@ sf::Color bgColor(
 
 sf::Color blue(0, 0, 255);
 
+sf::Color tabTrayBgColor (
+  globalEditorConfig.getTabTrayBgColor().r,
+  globalEditorConfig.getTabTrayBgColor().g,
+  globalEditorConfig.getTabTrayBgColor().b
+);
+
 sf::Color explorerColor(
   globalEditorConfig.getExplorerColor().r,
   globalEditorConfig.getExplorerColor().g,
@@ -61,22 +67,8 @@ int main() {
     globalEditorConfig.getExplorerYSize()
   );
 
-  sf::View explorerView = window.getView();
-  explorerView.reset(sf::FloatRect(
-    globalEditorConfig.getExplorerXPos(),
-    globalEditorConfig.getExplorerYPos(),
-    globalEditorConfig.getExplorerXSize(),
-    globalEditorConfig.getExplorerYSize()
-  ));
+  explorer.adjustView(desktopWidth, desktopHeight);
 
-  explorerView.setViewport(sf::FloatRect(
-    globalEditorConfig.getExplorerXPos() / desktopWidth,
-    globalEditorConfig.getExplorerYPos() / desktopHeight,
-    globalEditorConfig.getExplorerXSize() / desktopWidth,
-    globalEditorConfig.getExplorerYSize() / desktopHeight
-  ));
-
-  explorer.setWatchableView(explorerView);
   /** Explorer configuration ends **/
 
   while (window.isOpen()) {
@@ -93,9 +85,7 @@ int main() {
       }
 
       explorer.pollUserEvents(event);
-      if (!explorer.tabTray->empty()) {
-        explorer.tabTray->pollUserEvents(event);
-      }
+      explorer.tabTray->pollUserEvents(event);
     }
 
     window.clear(bgColor);
@@ -112,7 +102,10 @@ int main() {
     explorer.drawOnScreen();
 
     window.setView(explorer.tabTray->getWatchableView());
-    explorer.tabTray->fillColor(blue);
+    explorer.tabTray->fillColor(tabTrayBgColor);
+    if (explorer.tabTray->empty()) {
+      explorer.tabTray->fillColor(bgColor);
+    }
     explorer.tabTray->drawOnScreen();
 
     window.display();

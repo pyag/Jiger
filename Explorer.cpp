@@ -77,9 +77,7 @@ void Explorer::pollUserEvents (sf::Event &event) {
 
     // Mouse scroll up
     if (event.mouseWheelScroll.delta > 0) {
-      // Stop scroll up when reaching top of the text
-
-      float scrollUpThreshold = this->config->getExplorerYPos();
+      float scrollUpThreshold = this->getPosition().y;
 
       if (viewYPosTop - scrollUpThreshold > 40.0f) {
         currentView.move(0.f, -40.f);
@@ -90,9 +88,8 @@ void Explorer::pollUserEvents (sf::Event &event) {
 
     // Mouse scroll down
     if (event.mouseWheelScroll.delta < 0) {
-      // Stop scroll down below last line of text
-      float scrollDownThreshold = this->config->getExplorerYPos();
-      scrollDownThreshold += this->config->getExplorerYSize() + 500.0f;
+      float scrollDownThreshold = this->getPosition().y;
+      scrollDownThreshold += this->getSize().y + 300.0f;
 
       if (scrollDownThreshold - viewYPosBottom > 40.0f) {
         currentView.move(0.f, 40.f);

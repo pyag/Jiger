@@ -57,6 +57,7 @@ struct GlobalConfig {
   ColorComponent lineNumberColor;
   ColorComponent curLineNumberColor;
   ColorComponent explorerFontColor;
+  ColorComponent tabTrayBgColor;
 
   sf::Font font;
   sf::Font explorerFont;
@@ -104,6 +105,7 @@ struct GlobalConfig {
   void setExplorerFontColor (int, int, int);
   void setFont (std::string);
   void setExplorerFont (std::string);
+  void setTabTrayBgColor (int, int, int);
 
   // Getters
   int getFontSize ();
@@ -144,6 +146,7 @@ struct GlobalConfig {
   ColorComponent getLineNumberColor ();
   ColorComponent getCurLineNumberColor ();
   ColorComponent getExplorerFontColor ();
+  ColorComponent getTabTrayBgColor ();
   sf::Font& getFont ();
   sf::Font& getExplorerFont();
 };

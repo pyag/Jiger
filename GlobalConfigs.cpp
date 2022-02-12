@@ -47,6 +47,7 @@ GlobalConfig::GlobalConfig () {
   this->setLineNumberColor(120, 120, 120);
   this->setCurLineNumberColor(200, 200, 200);
   this->setExplorerFontColor(160, 160, 160);
+  this->setTabTrayBgColor(39, 39, 41);
 
   this->setFont("consola");
   this->setExplorerFont("monaco");
@@ -187,6 +188,12 @@ void GlobalConfig::setExplorerFontColor (int r, int g, int b) {
   this->explorerFontColor.r = r;
   this->explorerFontColor.g = g;
   this->explorerFontColor.b = b;  
+}
+
+void GlobalConfig::setTabTrayBgColor (int r, int g, int b) {
+  this->tabTrayBgColor.r = r;
+  this->tabTrayBgColor.g = g;
+  this->tabTrayBgColor.b = b;  
 }
 
 void GlobalConfig::setFont (std::string fontName) {
@@ -338,6 +345,10 @@ ColorComponent GlobalConfig::getCurLineNumberColor () {
 
 ColorComponent GlobalConfig::getExplorerFontColor () {
   return this->explorerFontColor;
+}
+
+ColorComponent GlobalConfig::getTabTrayBgColor () {
+  return this->tabTrayBgColor;
 }
 
 sf::Font& GlobalConfig::getFont () {
