@@ -58,9 +58,12 @@ void Explorer::pollUserEvents (sf::Event &event) {
     this->config->setExplorerXSize(newExplorerWidth);
     this->config->setExplorerYSize(newExplorerHeight);
 
+    float prevHeight = this->getSize().y;
     this->setSize(newExplorerWidth, newExplorerHeight);
 
     this->adjustView(event.size.width, event.size.height);
+
+    this->setSize(newExplorerWidth, prevHeight);
     return;
   }
 
@@ -89,7 +92,7 @@ void Explorer::pollUserEvents (sf::Event &event) {
     // Mouse scroll down
     if (event.mouseWheelScroll.delta < 0) {
       float scrollDownThreshold = this->getPosition().y;
-      scrollDownThreshold += this->getSize().y + 300.0f;
+      scrollDownThreshold += this->getSize().y + 10.0f;
 
       if (scrollDownThreshold - viewYPosBottom > 40.0f) {
         currentView.move(0.f, 40.f);
@@ -180,6 +183,12 @@ void Explorer::drawOnScreen () {
     ));
 
     this->getWindow()->draw(word);
+
+    // Updating Explorer size
+    this->setSize(
+      this->getSize().x,
+      parentDivYPos + paintYPos + wordHeight
+    );
   }
 }
 

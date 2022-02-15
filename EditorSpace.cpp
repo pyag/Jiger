@@ -115,7 +115,7 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
 
     if (this->cursorIndex > 0) {
       this->cursorIndex--;
-    }    
+    }
     
     return;
   }

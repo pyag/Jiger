@@ -89,15 +89,27 @@ void TabTray::pollUserEvents (sf::Event &event) {
   Div::pollEvents(event);
 
   if (event.type == sf::Event::Resized) {
-    this->config->setTabTrayWidth(this->config->getEditorXSize());
-    this->config->setTabTrayHeight(this->config->getTabTrayHeight());
-
+    //Setting editor Sized tabtray for view
     this->setSize(
       this->config->getEditorXSize(),
       this->config->getTabTrayHeight()
     );
 
     this->adjustView(event.size.width, event.size.height);
+
+    float newWidth = this->getSize().x;
+    newWidth = this->openTabWidth > newWidth ? this->openTabWidth : newWidth;
+
+    this->config->setTabTrayWidth(newWidth);
+    this->config->setTabTrayHeight(this->config->getTabTrayHeight());
+
+    // Setting the size of tabtray to all tab width
+    this->setSize(
+      newWidth,
+      this->config->getTabTrayHeight()
+    );
+
+    return;
   }
 
   if (event.type == sf::Event::MouseWheelScrolled) {
@@ -123,7 +135,7 @@ void TabTray::pollUserEvents (sf::Event &event) {
 
     // Scroll down will be used for scolling to right
     if (event.mouseWheelScroll.delta < 0) {
-      float scrollRightThresh = this->getPosition().x + this->getSize().x + 200.0f;
+      float scrollRightThresh = this->getPosition().x + this->getSize().x;
 
       if (scrollRightThresh - rightXPos > 40.0f) {
         view.move(40.0f, 0.0f);
