@@ -27,6 +27,8 @@ public:
   int getLineCount();
   std::string getSourceByPositions (int, int);
   bool empty ();
+
+  void write ();
 };
 
 #endif

@@ -103,3 +103,7 @@ std::string Buffer::getSourceByPositions (int from, int to) {
 bool Buffer::empty () {
   return this->source.empty();
 }
+
+void Buffer::write () {
+  writeFile(this->fileLoc, this->source);
+}

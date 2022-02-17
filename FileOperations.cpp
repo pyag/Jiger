@@ -32,6 +32,20 @@ std::string readFile (const std::string &fileLocation) {
   return fileText;
 }
 
+void writeFile (const std::string &fileLocation, const std::string &buffer) {
+  FILE *file = fopen(fileLocation.c_str(), "w");
+  if (file == NULL) {
+    std::cout << "File cannot be opened!\n";
+    exit(0);
+  }
+
+  for (int i = 0; i < buffer.length(); i++) {
+    fputc(buffer[i], file);
+  }
+
+  fclose(file);
+}
+
 void populateDataNode (const std::string &path, DataNode *dn, std::vector <std::string> &excluders) {
   #if defined(_WIN32)
   windowsSystemFileBrowse(path, dn, excluders);

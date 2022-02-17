@@ -186,6 +186,12 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     return;
   }
 
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+    && sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+    this->save();
+    return;
+  }
+
   if (event.type == sf::Event::TextEntered) {
     this->showCursor = true;
     this->clock.restart();
@@ -459,4 +465,8 @@ void EditorSpace::scrollDownByLines (int lines) {
   }
 
   this->setWatchableView(view);
+}
+
+void EditorSpace::save () {
+  this->buf->write();
 }

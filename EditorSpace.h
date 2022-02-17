@@ -30,20 +30,22 @@ public:
 
   GlobalConfig *config;
 
-  EditorSpace(std::string &, GlobalConfig *, sf::RenderWindow *);
-  void setLanguage(ProgLang);
-  void pollUserEvents(sf::Event &);
-  void pollKeyboard(int);
-  void drawOnScreen();
-  float getXTextOffset();
-  void displayLineNumber(int, int);
-  int getTotalLineCount();
+  EditorSpace (std::string &, GlobalConfig *, sf::RenderWindow *);
+  void setLanguage (ProgLang);
+  void pollUserEvents (sf::Event &);
+  void pollKeyboard (int);
+  void drawOnScreen ();
+  float getXTextOffset ();
+  void displayLineNumber (int, int);
+  int getTotalLineCount ();
 
-  void loadEditorConfigs();
-  void updateEditorSize();
+  void loadEditorConfigs ();
+  void updateEditorSize ();
 
-  void scrollUpByLines(int);
-  void scrollDownByLines(int);
+  void save ();
+
+  void scrollUpByLines (int);
+  void scrollDownByLines (int);
 };
 
 #endif
