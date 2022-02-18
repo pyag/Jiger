@@ -172,6 +172,11 @@ void Explorer::drawOnScreen () {
       parentDivYPos + paintYPos
     );
     dnDiv->setSize(this->getSize().x, wordHeight);
+
+    if (dnDiv->dn->id == activeDataNodeId) {
+      dnDiv->fillColor(sf::Color(80, 80, 80));
+    }
+
     dnDiv->drawOnScreen();
 
     std::string &filename = this->workplace->children[i]->filename;
