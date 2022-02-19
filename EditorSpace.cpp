@@ -167,7 +167,18 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     }
   }
 
-  if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+  // Ctrl + A - Select All
+  if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+    || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+    && sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+    this->selectionStartIndex = 0;
+    this->selectionEndIndex = this->buf->getBufferLength();
+    return;
+  }
+
+  // Ctrl + S - Save
+  if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+    || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
     && sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
     this->save();
     return;
