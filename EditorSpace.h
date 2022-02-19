@@ -30,6 +30,10 @@ public:
 
   GlobalConfig *config;
 
+  // Onclick event attribes
+  int selectionStartIndex, selectionEndIndex;
+  bool mousePressedFirstTime;
+
   EditorSpace (std::string &, GlobalConfig *, sf::RenderWindow *);
   void setLanguage (ProgLang);
   void pollUserEvents (sf::Event &);
@@ -46,6 +50,11 @@ public:
 
   void scrollUpByLines (int);
   void scrollDownByLines (int);
+
+  int getCursorIndexByLocation(float, float);
+
+  int getTopLineByView (sf::View &);
+  int getBottomLineByView (sf::View &);
 };
 
 #endif

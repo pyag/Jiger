@@ -15,6 +15,10 @@ EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::Render
   this->config = config;
   this->langSelected = PlainText;
   this->hideLineNumber = false;
+
+  this->mousePressedFirstTime = false;
+  this->selectionStartIndex = -1;
+  this->selectionEndIndex = -1;
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
@@ -74,6 +78,30 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
   /**
    * Below are Editor specific user events
    **/
+
+  // OnClick Event
+  if (event.type == sf::Event::MouseButtonPressed) {
+    
+    if (event.mouseButton.button == sf::Mouse::Left) {
+      
+      sf::Vector2i coord = sf::Mouse::getPosition(*this->getWindow());
+      sf::Vector2f mPos = this->getWindow()->mapPixelToCoords(coord, this->getWatchableView());
+
+      if (!this->mouseInMyArea(mPos.x, mPos.y)) return;
+      this->cursorIndex = this->getCursorIndexByLocation(mPos.x, mPos.y);
+
+      if (!this->mousePressedFirstTime) {
+        this->mousePressedFirstTime = true;
+        this->selectionStartIndex = this->cursorIndex;
+        this->selectionEndIndex = this->cursorIndex;
+      } else {
+        this->selectionEndIndex = this->cursorIndex;
+      }
+    
+    }
+
+    return;
+  }
 
   // Resizing Div on window
   if (event.type == sf::Event::Resized) {
@@ -237,14 +265,8 @@ void EditorSpace::drawOnScreen () {
   float viewTop = view.getCenter().y - (view.getSize().y / 2.0f);
   float viewBottom = view.getCenter().y + (view.getSize().y / 2.0f);
 
-  int lineTop =
-    (viewTop - Div::getPosition().y) / this->config->getWordHeight();
-  int lineBottom =
-    (viewBottom - Div::getPosition().y) / this->config->getWordHeight();
-  lineBottom =
-    lineBottom > this->buf->getLineCount()
-    ? this->buf->getLineCount()
-    : lineBottom;
+  int lineTop = this->getTopLineByView(this->getWatchableView());
+  int lineBottom = this->getBottomLineByView(this->getWatchableView());
 
   int startIndex = this->buf->getLineStartPos(lineTop);
   int endIndex = this->buf->getLineStartPos(lineBottom);
@@ -469,4 +491,62 @@ void EditorSpace::scrollDownByLines (int lines) {
 
 void EditorSpace::save () {
   this->buf->write();
+}
+
+int EditorSpace::getTopLineByView (sf::View &view) {
+  float viewTop = view.getCenter().y - (view.getSize().y / 2.0f);
+
+  return (viewTop - Div::getPosition().y) / this->config->getWordHeight();
+}
+
+int EditorSpace::getBottomLineByView (sf::View &view) {
+  float viewBottom = view.getCenter().y + (view.getSize().y / 2.0f);
+
+  int lineBottom =
+    (viewBottom - Div::getPosition().y) / this->config->getWordHeight();
+  lineBottom =
+    lineBottom > this->buf->getLineCount()
+    ? this->buf->getLineCount()
+    : lineBottom;
+
+  return lineBottom;
+}
+
+int EditorSpace::getCursorIndexByLocation(float x, float y) {
+  sf::View view = this->getWatchableView();
+  int lineTop = this->getTopLineByView(view);
+
+  float viewTopY = view.getCenter().y - view.getSize().y / 2.0f;
+
+  int lineClicked = lineTop + (y - viewTopY) / this->config->getWordHeight();
+  if (lineClicked > this->buf->getLineCount()) {
+    lineClicked = this->buf->getLineCount();
+  }
+
+  int lineStartIndex = this->buf->getLineStartPos(lineClicked);
+  int nextLineStartIndex = this->buf->getLineStartPos(lineClicked + 1);
+
+  float lineNumberOffsetX = this->getXTextOffset();
+
+  float xPos = (x
+    - this->getXTextOffset() * this->config->getWordWidth()
+    - this->getPosition().x);
+
+  float wordGap = xPos / this->config->getWordWidth();
+  
+  bool shouldAddOneInIndex = false;
+  if (0.5f < wordGap - (int)wordGap) {
+    shouldAddOneInIndex = true;
+  }
+
+  int index = lineStartIndex + wordGap;
+
+  // Rounding index
+  if (shouldAddOneInIndex) index++;
+
+  if (index >= nextLineStartIndex) {
+    index = nextLineStartIndex - 1;
+  }
+
+  return index;
 }
