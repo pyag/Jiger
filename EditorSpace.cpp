@@ -16,7 +16,7 @@ EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::Render
   this->langSelected = PlainText;
   this->hideLineNumber = false;
 
-  this->mousePressedFirstTime = false;
+  this->leftMouseClicked = false;
   this->selectionStartIndex = -1;
   this->selectionEndIndex = -1;
 }
@@ -83,21 +83,51 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
   if (event.type == sf::Event::MouseButtonPressed) {
     
     if (event.mouseButton.button == sf::Mouse::Left) {
-      
-      sf::Vector2i coord = sf::Mouse::getPosition(*this->getWindow());
-      sf::Vector2f mPos = this->getWindow()->mapPixelToCoords(coord, this->getWatchableView());
+      if (!this->leftMouseClicked) {
 
-      if (!this->mouseInMyArea(mPos.x, mPos.y)) return;
-      this->cursorIndex = this->getCursorIndexByLocation(mPos.x, mPos.y);
+        sf::Vector2i coord = sf::Mouse::getPosition(*this->getWindow());
+        sf::Vector2f mPos = this->getWindow()
+          ->mapPixelToCoords(coord, this->getWatchableView());
 
-      if (!this->mousePressedFirstTime) {
-        this->mousePressedFirstTime = true;
+        if (!this->mouseInMyArea(mPos.x, mPos.y)) return;
+        this->cursorIndex = this->getCursorIndexByLocation(mPos.x, mPos.y);
+
+        this->leftMouseClicked = true;
         this->selectionStartIndex = this->cursorIndex;
         this->selectionEndIndex = this->cursorIndex;
-      } else {
-        this->selectionEndIndex = this->cursorIndex;
+
       }
     
+    }
+
+    return;
+  }
+
+  if (event.type == sf::Event::MouseButtonReleased) {
+    if (event.mouseButton.button == sf::Mouse::Left) {
+      this->leftMouseClicked = false;
+
+      sf::Vector2i coord = sf::Mouse::getPosition(*this->getWindow());
+      sf::Vector2f mPos = this->getWindow()
+        ->mapPixelToCoords(coord, this->getWatchableView());
+      
+      this->selectionEndIndex = this->getCursorIndexByLocation(mPos.x, mPos.y);
+    }
+
+    return;
+  }
+
+  if (event.type == sf::Event::MouseMoved) {
+    if (this->leftMouseClicked) {
+      this->showCursor = true;
+      this->clock.restart();
+
+      sf::Vector2i coord(event.mouseMove.x, event.mouseMove.y);
+      sf::Vector2f mPos = this->getWindow()
+        ->mapPixelToCoords(coord, this->getWatchableView());
+      
+      this->cursorIndex = this->getCursorIndexByLocation(mPos.x, mPos.y);
+      this->selectionEndIndex = this->cursorIndex;
     }
 
     return;
@@ -137,6 +167,12 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     }
   }
 
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+    && sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+    this->save();
+    return;
+  }
+
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
     this->showCursor = true;
     this->clock.restart();
@@ -144,7 +180,8 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     if (this->cursorIndex > 0) {
       this->cursorIndex--;
     }
-    
+
+    this->removeSelection();    
     return;
   }
 
@@ -156,6 +193,7 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
       this->cursorIndex++;
     }
 
+    this->removeSelection();
     return;
   }
 
@@ -179,6 +217,7 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     }
 
     this->curLine--;
+    this->removeSelection();
     return;
   }
 
@@ -211,19 +250,15 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
 
     this->curLine++;
 
-    return;
-  }
-
-  if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
-    && sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-    this->save();
+    this->removeSelection();
     return;
   }
 
   if (event.type == sf::Event::TextEntered) {
     this->showCursor = true;
     this->clock.restart();
-    this->pollKeyboard(event.text.unicode);  
+    this->pollKeyboard(event.text.unicode);
+    this->removeSelection();
   }
 
   return;
@@ -285,6 +320,8 @@ void EditorSpace::drawOnScreen () {
   Parser *parser = new Parser();
   parser->loadBuffer(this->buf->getSource(), startIndex, endIndex);
 
+  int runningIndex = startIndex;
+
   while (parser->hasNextToken()) {
     wordText = parser->getToken();
 
@@ -293,6 +330,12 @@ void EditorSpace::drawOnScreen () {
     word.setColor(curWordColor);
 
     if (wordText == "\n") {
+      selectIfRequired(
+        runningIndex,
+        XResetPos + (float)(xWordPosition) * this->config->getWordWidth(),
+        (float)yWordPosition
+      );
+      runningIndex++;
       xWordPosition = 0;
       yWordPosition += this->config->getWordHeight();
       continue;
@@ -305,7 +348,10 @@ void EditorSpace::drawOnScreen () {
       word.setString(wordText[i]);
       word.setPosition(sf::Vector2f(x, y));
 
+      selectIfRequired(runningIndex, x, y);
       this->getWindow()->draw(word);
+
+      runningIndex++;
     }
   }
 
@@ -549,4 +595,32 @@ int EditorSpace::getCursorIndexByLocation(float x, float y) {
   }
 
   return index;
+}
+
+bool EditorSpace::insideSelectionArea (int index) {
+  int low = this->selectionStartIndex;
+  int high = this->selectionEndIndex;
+
+  if (low == high) return false;
+  if (low > high) {
+    std::swap(low, high);
+  }
+
+  return (low <= index && index < high);
+}
+
+void EditorSpace::selectIfRequired (int index, float x, float y) {
+  if (this->insideSelectionArea(index)) {
+    sf::RectangleShape background(
+      sf::Vector2f(this->config->getWordWidth(), this->config->getWordHeight())
+    );
+    background.setPosition(sf::Vector2f(x, y));
+    background.setFillColor(sf::Color(65, 105, 225, 100));
+
+    this->getWindow()->draw(background);
+  }
+}
+
+void EditorSpace::removeSelection () {
+  this->selectionStartIndex = this->selectionEndIndex = -1;
 }

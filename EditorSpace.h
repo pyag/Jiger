@@ -32,7 +32,7 @@ public:
 
   // Onclick event attribes
   int selectionStartIndex, selectionEndIndex;
-  bool mousePressedFirstTime;
+  bool leftMouseClicked;
 
   EditorSpace (std::string &, GlobalConfig *, sf::RenderWindow *);
   void setLanguage (ProgLang);
@@ -55,6 +55,10 @@ public:
 
   int getTopLineByView (sf::View &);
   int getBottomLineByView (sf::View &);
+
+  bool insideSelectionArea (int);
+  void selectIfRequired (int, float, float);
+  void removeSelection ();
 };
 
 #endif
