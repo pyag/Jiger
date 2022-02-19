@@ -56,9 +56,14 @@ public:
   int getTopLineByView (sf::View &);
   int getBottomLineByView (sf::View &);
 
+  bool isAnythingSelected ();
   bool insideSelectionArea (int);
   void selectIfRequired (int, float, float);
   void removeSelection ();
+
+  int getSelectionLower ();
+  int getSelectionHigher ();
+
 };
 
 #endif

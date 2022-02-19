@@ -24,19 +24,31 @@ EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::Render
 void EditorSpace::pollKeyboard (int unicode) {
   // Backspace
   if (unicode == 8) {
-    bool syncLines = false;
-    int to = this->cursorIndex;
-    if (this->buf->getCharAtPos(to - 1) == '\n') {
-      syncLines = true;
-    }
 
-    this->buf->remove(to - 1, to);
+    if (this->isAnythingSelected()) {
+      this->buf->remove(
+        this->getSelectionLower(),
+        this->getSelectionHigher()
+      );
 
-    if (syncLines) {
+      this->cursorIndex = this->getSelectionLower();
       this->buf->syncLineBreaks();
+    } else {
+      bool syncLines = false;
+      int to = this->cursorIndex;
+      if (this->buf->getCharAtPos(to - 1) == '\n') {
+        syncLines = true;
+      }
+
+      this->buf->remove(to - 1, to);
+
+      if (syncLines) {
+        this->buf->syncLineBreaks();
+      }
+
+      if (this->cursorIndex > 0) this->cursorIndex--;
     }
 
-    if (this->cursorIndex > 0) this->cursorIndex--;
     return;
   }
 
@@ -44,8 +56,16 @@ void EditorSpace::pollKeyboard (int unicode) {
   if (unicode == 9) {
 
     std::string tabs = "  ";
-    this->buf->insert(tabs, this->cursorIndex);
 
+    if (this->isAnythingSelected()) {
+      this->buf->remove(
+        this->getSelectionLower(),
+        this->getSelectionHigher()
+      );
+      this->cursorIndex = this->getSelectionLower();
+    }
+
+    this->buf->insert(tabs, this->cursorIndex);
     this->cursorIndex += 2;
     return;
   }
@@ -53,6 +73,15 @@ void EditorSpace::pollKeyboard (int unicode) {
   // Return
   if (unicode == 13) {
     std::string returnChar = "\n";
+
+    if (this->isAnythingSelected()) {
+      this->buf->remove(
+        this->getSelectionLower(),
+        this->getSelectionHigher()
+      );
+      this->cursorIndex = this->getSelectionLower();
+    }
+
     this->buf->insert(returnChar, this->cursorIndex);
     this->buf->syncLineBreaks();
     
@@ -63,6 +92,15 @@ void EditorSpace::pollKeyboard (int unicode) {
   if (unicode >= 32 && unicode <= 126) {
     std::string newChar;
     newChar = (char)(unicode);
+
+    if (this->isAnythingSelected()) {
+      this->buf->remove(
+        this->getSelectionLower(),
+        this->getSelectionHigher()
+      );
+      this->cursorIndex = this->getSelectionLower();
+    }
+
     this->buf->insert(newChar, this->cursorIndex);
 
     this->cursorIndex++;
@@ -188,11 +226,15 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     this->showCursor = true;
     this->clock.restart();
 
-    if (this->cursorIndex > 0) {
-      this->cursorIndex--;
+    if (this->isAnythingSelected()) {
+      this->cursorIndex = this->getSelectionLower();
+    } else {
+      if (this->cursorIndex > 0) {
+        this->cursorIndex--;
+      }
     }
 
-    this->removeSelection();    
+    this->removeSelection();
     return;
   }
 
@@ -200,8 +242,12 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     this->showCursor = true;
     this->clock.restart();
 
-    if (this->cursorIndex < this->buf->getBufferLength()) {
-      this->cursorIndex++;
+    if (this->isAnythingSelected()) {
+      this->cursorIndex = this->getSelectionHigher();
+    } else {
+      if (this->cursorIndex < this->buf->getBufferLength()) {
+        this->cursorIndex++;
+      }
     }
 
     this->removeSelection();
@@ -634,4 +680,23 @@ void EditorSpace::selectIfRequired (int index, float x, float y) {
 
 void EditorSpace::removeSelection () {
   this->selectionStartIndex = this->selectionEndIndex = -1;
+}
+
+bool EditorSpace::isAnythingSelected () {
+  int low = this->selectionStartIndex;
+  int high = this->selectionEndIndex;
+
+  if (low > high) {
+    std::swap(low, high);
+  }
+
+  return (low < high && low >= 0 && high <= this->buf->getBufferLength());
+}
+
+int EditorSpace::getSelectionLower () {
+  return std::min(this->selectionStartIndex, this->selectionEndIndex);
+}
+
+int EditorSpace::getSelectionHigher () {
+  return std::max(this->selectionStartIndex, this->selectionEndIndex);
 }
