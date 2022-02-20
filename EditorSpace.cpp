@@ -2,7 +2,7 @@
 
 EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::RenderWindow *window): Div(window) {
   this->fileLoc = fileLoc;
-  
+
   this->buf = new Buffer(this->fileLoc);
   this->buf->loadBuffer();
 
@@ -19,6 +19,11 @@ EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::Render
   this->leftMouseClicked = false;
   this->selectionStartIndex = -1;
   this->selectionEndIndex = -1;
+
+  this->setPosition(
+    this->config->getEditorXPos(),
+    this->config->getEditorYPos()
+  );
 }
 
 void EditorSpace::pollKeyboard (int unicode) {
@@ -528,17 +533,17 @@ void EditorSpace::displayLineNumber (int start, int end) {
 }
 
 void EditorSpace::loadEditorConfigs() {
-  this->setPosition(
-    this->config->getEditorXPos(),
-    this->config->getEditorYPos()
-  );
+  float windowWidth = this->getWindow()->getSize().x;
+  float windowHeight = this->getWindow()->getSize().y;
 
-  this->setSize(
-    this->config->getEditorXSize(),
-    this->config->getEditorYSize()
-  );
+  float newEditorWidth = windowWidth - this->config->getEditorXPos();
+  float newEditorHeight = windowHeight - this->config->getEditorYPos();
 
-  this->adjustView(this->getWindow()->getSize().x, this->getWindow()->getSize().y);
+  this->config->setEditorXSize(newEditorWidth);
+  this->config->setEditorYSize(newEditorHeight);
+  this->setSize(newEditorWidth, newEditorHeight);
+
+  this->adjustView(windowWidth, windowHeight);
 }
 
 void EditorSpace::updateEditorSize () {

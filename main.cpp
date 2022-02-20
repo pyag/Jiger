@@ -35,15 +35,15 @@ int main() {
   float desktopWidth = sf::VideoMode::getDesktopMode().width;
   float desktopHeight = sf::VideoMode::getDesktopMode().height;
 
-  float editorWidth = desktopWidth - globalEditorConfig.getEditorXPos();
-  float editorHeight = desktopHeight - globalEditorConfig.getEditorYPos();
-
   // Fonts are not clear when opening app in desktop width mode
   // Everything scales well after resizing, but strangely does
   // not work well when opening in full width and height
   // So for now, opening the editor in small width and height
   desktopWidth *= 0.7f;
   desktopHeight *= 0.7f;
+
+  float editorWidth = desktopWidth - globalEditorConfig.getEditorXPos();
+  float editorHeight = desktopHeight - globalEditorConfig.getEditorYPos();
 
   globalEditorConfig.setEditorXSize(editorWidth);
   globalEditorConfig.setEditorYSize(editorHeight);
