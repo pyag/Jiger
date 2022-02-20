@@ -5,6 +5,9 @@
 Div::Div (sf::RenderWindow *window) {
   this->window = window;
   this->mousePressedState = false;
+
+  this->viewLeftDiff = -1.0f;
+  this->viewTopDiff = -1.0f;
 }
 
 void Div::pollEvents (sf::Event &event) {
@@ -91,13 +94,10 @@ bool Div::clicked (sf::Event &event, float x, float y) {
   }
 
   if (event.type == sf::Event::MouseButtonReleased) {
-    this->mousePressedState = false;
-
-    if (!this->mouseInMyArea(x, y)) {
-      return false;
-    };
-
-    return true;
+    if (this->mouseInMyArea(x, y) && this->mousePressedState) {
+      this->mousePressedState = false;
+      return true;      
+    }
   }
 
   return false; 
@@ -120,12 +120,32 @@ void Div::adjustView (float width, float height) {
   // Adjusting Div view
   sf::View view = this->getWatchableView();
 
-  view.reset(sf::FloatRect(
-    this->getPosition().x,
-    this->getPosition().y,
-    this->getSize().x,
-    this->getSize().y
-  ));
+  if (viewLeftDiff == -1.0f && viewTopDiff == -1.0f) {
+
+    view.reset(sf::FloatRect(
+      this->getPosition().x,
+      this->getPosition().y,
+      this->getSize().x,
+      this->getSize().y
+    ));
+
+    this->viewLeftDiff = 0.0f;
+    this->viewTopDiff = 0.0f;
+
+  } else {
+    float leftPos = view.getCenter().x - view.getSize().x / 2.0f;
+    float topPos = view.getCenter().y - view.getSize().y / 2.0f;
+    
+    this->viewLeftDiff = leftPos - this->getPosition().x;
+    this->viewTopDiff = topPos - this->getPosition().y;
+
+    view.reset(sf::FloatRect(
+      this->getPosition().x + this->viewLeftDiff,
+      this->getPosition().y + this->viewTopDiff,
+      this->getSize().x,
+      this->getSize().y
+    ));
+  }
 
   view.setViewport(sf::FloatRect(
     this->getPosition().x / width,

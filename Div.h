@@ -13,6 +13,8 @@ public:
   bool mousePressedState;
   sf::View watchableView;
 
+  float viewLeftDiff, viewTopDiff;
+
   sf::RenderWindow *window;
 
   Div (sf::RenderWindow *);
