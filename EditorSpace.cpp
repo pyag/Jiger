@@ -148,13 +148,9 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
 
   if (event.type == sf::Event::MouseButtonReleased) {
     if (event.mouseButton.button == sf::Mouse::Left) {
-      this->leftMouseClicked = false;
-
-      sf::Vector2i coord = sf::Mouse::getPosition(*this->getWindow());
-      sf::Vector2f mPos = this->getWindow()
-        ->mapPixelToCoords(coord, this->getWatchableView());
-      
-      this->selectionEndIndex = this->getCursorIndexByLocation(mPos.x, mPos.y);
+      if (this->leftMouseClicked) {
+        this->leftMouseClicked = false;
+      }
     }
 
     return;
