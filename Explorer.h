@@ -31,6 +31,8 @@ public:
   void pollUserEvents (sf::Event &);
 
   void loadWorkPlace (const std::string &);
+  void openNewTab(DataNode *);
+
 
   void drawOnScreen();
 };

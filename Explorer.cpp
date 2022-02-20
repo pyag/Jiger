@@ -21,29 +21,11 @@ void Explorer::pollUserEvents (sf::Event &event) {
     this->fileDivs[i]->pollUserEvents(event);
     this->fileDivs[i]->onHover(&this->getWatchableView());
 
-    // Checks onclick event
+    // Check onclick event
     if (this->fileDivs[i]->onClick(event, &this->getWatchableView())) {
+
       // Open editor according to the Data Node clicked
-
-      int clickedDnId = this->fileDivs[i]->dn->id;
-
-      if (this->openEditors.find(clickedDnId) != this->openEditors.end()) {
-        this->activeDataNodeId = clickedDnId;
-        this->openEditors[clickedDnId]->loadEditorConfigs();
-        this->tabTray->setActiveTab(clickedDnId);
-        return;
-      }
-
-      EditorSpace *newEditor = new EditorSpace(
-        this->fileDivs[i]->dn->fullpath,
-        this->config,
-        this->getWindow()
-      );
-      newEditor->loadEditorConfigs();
-
-      this->activeDataNodeId = clickedDnId;
-      this->openEditors[clickedDnId] = newEditor;
-      this->tabTray->push(this->fileDivs[i]->dn->filename, clickedDnId, newEditor);
+      this->openNewTab(this->fileDivs[i]->dn);
 
       return;
     }
@@ -199,4 +181,26 @@ void Explorer::drawOnScreen () {
 
 bool Explorer::isAnyEditorActive () {
   return (this->activeDataNodeId != -1);
+}
+
+void Explorer::openNewTab(DataNode *dn) {
+  int id = dn->id;
+
+  if (this->openEditors.find(id) != this->openEditors.end()) {
+    this->activeDataNodeId = id;
+    this->openEditors[id]->loadEditorConfigs();
+    this->tabTray->setActiveTab(id);
+    return;
+  }
+
+  EditorSpace *newEditor = new EditorSpace(
+    dn->fullpath,
+    this->config,
+    this->getWindow()
+  );
+  newEditor->loadEditorConfigs();
+
+  this->activeDataNodeId = id;
+  this->openEditors[id] = newEditor;
+  this->tabTray->push(dn->filename, id, newEditor);
 }
