@@ -34,6 +34,9 @@ public:
   int selectionStartIndex, selectionEndIndex;
   bool leftMouseClicked;
 
+  //Flags for KeyPress states
+  bool isPasted, isCopied;
+
   EditorSpace (std::string &, GlobalConfig *, sf::RenderWindow *);
   void setLanguage (ProgLang);
   void pollUserEvents (sf::Event &);

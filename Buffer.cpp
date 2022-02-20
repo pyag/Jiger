@@ -97,7 +97,8 @@ int Buffer::getLineCount () {
 }
 
 std::string Buffer::getSourceByPositions (int from, int to) {
-  return this->source.substr(from, to);
+  if (from > to) std::swap(from, to);
+  return this->source.substr(from, to - from);
 }
 
 bool Buffer::empty () {

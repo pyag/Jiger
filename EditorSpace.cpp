@@ -20,6 +20,9 @@ EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::Render
   this->selectionStartIndex = -1;
   this->selectionEndIndex = -1;
 
+  this->isPasted = false;
+  this->isCopied = false;
+
   this->setPosition(
     this->config->getEditorXPos(),
     this->config->getEditorYPos()
@@ -206,6 +209,52 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     }
   }
 
+  // Ctrl + C - Copy Selected text
+  if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+    || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+    && sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
+
+    if (!this->isCopied) {
+      if (this->isAnythingSelected()) {
+        this->isCopied = true;
+        const std::string &selectedText = this->buf->getSourceByPositions(
+          getSelectionLower(),
+          getSelectionHigher()
+        );
+
+        sf::Clipboard::setString(selectedText);
+      }
+    }
+
+    return;
+  }
+
+  // Ctrl + V - Paste Selected text
+  if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+    || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+    && sf::Keyboard::isKeyPressed(sf::Keyboard::V)) {
+
+    if (!this->isPasted) {
+      this->isPasted = true;
+      std::string copiedText = sf::Clipboard::getString();
+
+      if (this->isAnythingSelected()) {
+        this->buf->remove(
+          this->getSelectionLower(),
+          this->getSelectionHigher()
+        );
+        this->cursorIndex = this->getSelectionLower();
+      }
+
+      this->buf->insert(copiedText, this->cursorIndex);
+      this->cursorIndex += copiedText.length();
+
+      this->removeSelection();
+    }
+
+    return;
+  }
+
   // Ctrl + A - Select All
   if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
     || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
@@ -309,6 +358,20 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     this->curLine++;
 
     this->removeSelection();
+    return;
+  }
+
+  if (event.type == sf::Event::KeyReleased) {
+    if (event.key.code == sf::Keyboard::V) {
+      this->isPasted = false;
+      return;
+    }
+
+    if (event.key.code == sf::Keyboard::C) {
+      this->isCopied = false;
+      return;
+    }
+
     return;
   }
 
