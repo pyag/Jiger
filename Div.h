@@ -43,6 +43,8 @@ public:
 
   bool mouseInMyArea(float, float);
   void adjustView (float, float);
+
+  void setCursorPointer (sf::Cursor::Type);
 };
 
 #endif

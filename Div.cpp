@@ -8,6 +8,9 @@ Div::Div (sf::RenderWindow *window) {
 
   this->viewLeftDiff = -1.0f;
   this->viewTopDiff = -1.0f;
+
+  // By default set Arrow as cursor pointer
+  this->setCursorPointer(sf::Cursor::Arrow);
 }
 
 void Div::pollEvents (sf::Event &event) {
@@ -155,4 +158,14 @@ void Div::adjustView (float width, float height) {
   ));
 
   this->setWatchableView(view);
+}
+
+void Div::setCursorPointer (sf::Cursor::Type type) {
+  sf::Cursor systemCursor;
+
+  if (systemCursor.loadFromSystem(type)) {
+    this->getWindow()->setMouseCursor(systemCursor);
+  } else {
+    std::cout << "Cannot load cursor\n";
+  }
 }
