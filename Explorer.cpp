@@ -137,7 +137,7 @@ void Explorer::drawOnScreen () {
 
   word.setFont(explorerFont);
   word.setCharacterSize(this->config->getExplorerFontSize());
-  word.setColor(fontColor);
+  word.setFillColor(fontColor);
 
   float paintXPos = 0.0f;
   float paintYPos = 0.0f;

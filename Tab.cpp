@@ -32,7 +32,7 @@ void Tab::drawOnScreen () {
 
   word.setFont(explorerFont);
   word.setCharacterSize(this->config->getExplorerFontSize());
-  word.setColor(tabFontColor);
+  word.setFillColor(tabFontColor);
 
   word.setString(this->name);
   word.setPosition(sf::Vector2f(

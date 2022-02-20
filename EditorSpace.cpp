@@ -352,7 +352,7 @@ void EditorSpace::drawOnScreen () {
 
   word.setFont(editorFont);
   word.setCharacterSize(this->config->getFontSize());
-  word.setColor(fontColor);
+  word.setFillColor(fontColor);
 
   sf::View view = this->getWatchableView();
   float viewTop = view.getCenter().y - (view.getSize().y / 2.0f);
@@ -385,7 +385,7 @@ void EditorSpace::drawOnScreen () {
 
     ColorComponent colorRgb = wordHighlighter(wordText, languageSelected);
     sf::Color curWordColor(colorRgb.r, colorRgb.g, colorRgb.b);
-    word.setColor(curWordColor);
+    word.setFillColor(curWordColor);
 
     if (wordText == "\n") {
       selectIfRequired(
@@ -509,9 +509,9 @@ void EditorSpace::displayLineNumber (int start, int end) {
     xNumPosPadding = lineNumThresh - lineStr.length() > 0 ? lineNumThresh - lineStr.length() : 0;
 
     if (line == this->curLine) {
-      num.setColor(curLineNumberColor);
+      num.setFillColor(curLineNumberColor);
     } else {
-      num.setColor(lineNumberColor);
+      num.setFillColor(lineNumberColor);
     }
 
     for (int i = 0; i < lineStr.length(); i++) {
