@@ -11,6 +11,7 @@ public:
   sf::RectangleShape divBox;
 
   bool mousePressedState;
+  sf::Cursor::Type mousePointerType;
   sf::View watchableView;
 
   float viewLeftDiff, viewTopDiff;
@@ -45,6 +46,7 @@ public:
   void adjustView (float, float);
 
   void setCursorPointer (sf::Cursor::Type);
+  void mouseCursorOnHover ();
 };
 
 #endif

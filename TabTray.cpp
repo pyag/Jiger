@@ -5,6 +5,8 @@ TabTray::TabTray (GlobalConfig *config, sf::RenderWindow *window) : Div(window) 
   this->tabs.clear();
   this->activeDataNodeId = -1;
   this->openTabWidth = 0.0f;
+
+  this->mousePointerType = sf::Cursor::Hand;
 }
 
 void TabTray::push (std::string &name, int dnId, EditorSpace *editor) {

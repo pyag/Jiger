@@ -10,6 +10,8 @@ EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::Render
   this->cursorIndex = 0;
   this->curLine = 0;
 
+  this->mousePointerType = sf::Cursor::Text;
+
   this->showCursor = true;
 
   this->config = config;
