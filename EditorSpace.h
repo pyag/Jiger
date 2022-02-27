@@ -35,7 +35,7 @@ public:
   bool leftMouseClicked;
 
   //Flags for KeyPress states
-  bool isPasted, isCopied;
+  bool isPasted, isCopied, isSaved;
 
   EditorSpace (std::string &, GlobalConfig *, sf::RenderWindow *);
   void setLanguage (ProgLang);

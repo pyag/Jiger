@@ -24,6 +24,7 @@ EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::Render
 
   this->isPasted = false;
   this->isCopied = false;
+  this->isSaved = false;
 
   this->setPosition(
     this->config->getEditorXPos(),
@@ -270,7 +271,11 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
   if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
     || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
     && sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-    this->save();
+    if (!this->isSaved) {
+      std::cout << "Is Saved Called!!\n";
+      this->isSaved = true;
+      this->save();
+    }
     return;
   }
 
@@ -372,6 +377,10 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     if (event.key.code == sf::Keyboard::C) {
       this->isCopied = false;
       return;
+    }
+
+    if (event.key.code == sf::Keyboard::S) {
+      this->isSaved = false;
     }
 
     return;
