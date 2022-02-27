@@ -24,8 +24,12 @@ void Explorer::pollUserEvents (sf::Event &event) {
     // Check onclick event
     if (this->fileDivs[i]->onClick(event, &this->getWatchableView())) {
 
-      // Open editor according to the Data Node clicked
-      this->openNewTab(this->fileDivs[i]->dn);
+      // Open editor according to the Data Node
+      if (this->fileDivs[i]->dn->isDirectory) {
+
+      } else {
+        this->openNewTab(this->fileDivs[i]->dn);
+      }
 
       return;
     }
@@ -156,7 +160,7 @@ void Explorer::drawOnScreen () {
     dnDiv->setSize(this->getSize().x, wordHeight);
 
     if (dnDiv->dn->id == activeDataNodeId) {
-      dnDiv->fillColor(sf::Color(80, 80, 80));
+      dnDiv->fillColor(sf::Color(80, 80, 80, 100));
     }
 
     dnDiv->drawOnScreen();

@@ -13,7 +13,7 @@ void DataNodeElement::pollUserEvents (sf::Event &event) {
 
 void DataNodeElement::onHover (sf::View *view) {
   if (Div::onhover(view)) {
-    this->fillColor(sf::Color(60, 60, 60));
+    this->fillColor(sf::Color(60, 60, 60, 100));
   } else {
     this->fillColor(sf::Color(
       this->config->getExplorerColor().r,

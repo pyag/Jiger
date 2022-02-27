@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 struct DataNode {
   int id;
@@ -12,9 +13,10 @@ struct DataNode {
 
   std::vector <DataNode *> children;
 
-  DataNode();
-  DataNode(std::string &);
-  void populate(std::vector <std::string> &);
+  DataNode ();
+  DataNode (std::string &);
+  void populate (std::vector <std::string> &);
+  void sortChildrenByFilename ();
 };
 
 #endif
