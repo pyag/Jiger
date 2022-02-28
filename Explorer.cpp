@@ -118,35 +118,12 @@ void Explorer::drawOnScreen () {
     return;
   }
 
-  float wordWidth = this->config->getExplorerWordWidth();
   float wordHeight = this->config->getExplorerWordHeight();
-
-  float parentDivXPos = this->getPosition().x;
   float parentDivYPos = this->getPosition().y;
-
-  float leftXPadding = 25.0f;
+  float paintYPos = 0.0f;
   float topYPadding = 50.0f;
 
-  parentDivXPos += leftXPadding;
   parentDivYPos += topYPadding;
-
-  sf::Color fontColor(
-    this->config->getExplorerFontColor().r,
-    this->config->getExplorerFontColor().g,
-    this->config->getExplorerFontColor().b
-  );
-  sf::Font explorerFont = this->config->getExplorerFont();
-
-  sf::Text word;
-
-  word.setFont(explorerFont);
-  word.setCharacterSize(this->config->getExplorerFontSize());
-  word.setFillColor(fontColor);
-
-  float paintXPos = 0.0f;
-  float paintYPos = 0.0f;
-
-  float heightBuf = 2.0f;
 
   for (int i = 0; i < this->workplace->children.size(); i++) {
     paintYPos = i * wordHeight;
@@ -165,20 +142,10 @@ void Explorer::drawOnScreen () {
 
     dnDiv->drawOnScreen();
 
-    std::string &filename = this->workplace->children[i]->filename;
-
-    word.setString(filename);
-    word.setPosition(sf::Vector2f(
-      parentDivXPos + paintXPos,
-      parentDivYPos + paintYPos + heightBuf
-    ));
-
-    this->getWindow()->draw(word);
-
     // Updating Explorer size
     this->setSize(
       this->getSize().x,
-      parentDivYPos + paintYPos + wordHeight
+      parentDivYPos + (this->dataNodeId * wordHeight) + wordHeight
     );
   }
 }
