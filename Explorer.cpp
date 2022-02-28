@@ -95,14 +95,18 @@ void Explorer::pollUserEvents (sf::Event &event) {
 void Explorer::loadWorkPlace (const std::string &path) {
   this->workplace = new DataNode();
   this->workplace->fullpath = path;
-  this->workplace->populate(this->excludedFilePatterns);
+  this->populateDataNode(this->workplace);
+}
 
-  for (int i = 0; i < this->workplace->children.size(); i++) {
-    DataNode *dn = this->workplace->children[i];
-    dn->id = this->dataNodeId++;
+void Explorer::populateDataNode (DataNode *dn) {
+  dn->populate(this->excludedFilePatterns);
+
+  for (int i = 0; i < dn->children.size(); i++) {
+    DataNode *child = dn->children[i];
+    child->id = this->dataNodeId++;
 
     DataNodeElement *displayDn = new DataNodeElement(
-      dn,
+      child,
       this->config,
       this->getWindow()
     );

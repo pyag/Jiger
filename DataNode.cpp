@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "FileOperations.h"
 #include "DataNode.h"
 

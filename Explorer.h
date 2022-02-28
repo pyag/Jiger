@@ -32,7 +32,7 @@ public:
 
   void loadWorkPlace (const std::string &);
   void openNewTab(DataNode *);
-
+  void populateDataNode (DataNode *);
 
   void drawOnScreen();
 };
