@@ -3,6 +3,7 @@
 #include "DataNodeElement.h"
 
 DataNodeElement::DataNodeElement (DataNode *dn, GlobalConfig *cfg, sf::RenderWindow *window): Div(window) {
+  this->isExpanded = false;
   this->dn = dn;
   this->config = cfg;
 

@@ -17,21 +17,37 @@ Explorer::Explorer (GlobalConfig *config, sf::RenderWindow *window): Div(window)
 void Explorer::pollUserEvents (sf::Event &event) {
   Div::pollEvents(event);
 
-  for (int i = 0; i < this->fileDivs.size(); i++) {
-    this->fileDivs[i]->pollUserEvents(event);
-    this->fileDivs[i]->onHover(&this->getWatchableView());
+  {
+    std::map <DataNode *, DataNodeElement *>::iterator it;
+    for (it = this->fileDivs.begin(); it != this->fileDivs.end(); it++) {
+      it->second->pollUserEvents(event);
+      it->second->onHover(&this->getWatchableView());
 
-    // Check onclick event
-    if (this->fileDivs[i]->onClick(event, &this->getWatchableView())) {
+      // Check onclick event
+      if (it->second->onClick(event, &this->getWatchableView())) {
 
-      // Open editor according to the Data Node
-      if (this->fileDivs[i]->dn->isDirectory) {
+        // Open editor according to the Data Node
+        if (it->first->isDirectory) {
 
-      } else {
-        this->openNewTab(this->fileDivs[i]->dn);
+          if (!it->second->isExpanded) {
+            // Open file/folders inside the DataNode
+            this->populateDataNode(it->first);
+          } else {
+            // Clear all the populated children in Datanode
+            // This deallocates the memory
+            // Could have used .clear(), but it does not deallocates memory
+            std::vector <DataNode *> ().swap(it->first->children);
+          }
+
+          // Toggle the expanded folder (Show <-> Hide)
+          it->second->isExpanded = !it->second->isExpanded;
+
+        } else {
+          this->openNewTab(it->first);
+        }
+
+        return;
       }
-
-      return;
     }
   }
 
@@ -111,7 +127,7 @@ void Explorer::populateDataNode (DataNode *dn) {
       this->getWindow()
     );
 
-    this->fileDivs.push_back(displayDn);
+    this->fileDivs[child] = displayDn;
   }
 }
 
@@ -129,29 +145,14 @@ void Explorer::drawOnScreen () {
 
   parentDivYPos += topYPadding;
 
-  for (int i = 0; i < this->workplace->children.size(); i++) {
-    paintYPos = i * wordHeight;
+  int nodeCount = 0;
+  this->drawDataNodeTree(this->workplace, nodeCount);
 
-    DataNodeElement *dnDiv = this->fileDivs[i];
-
-    dnDiv->setPosition(
-      this->getPosition().x,
-      parentDivYPos + paintYPos
-    );
-    dnDiv->setSize(this->getSize().x, wordHeight);
-
-    if (dnDiv->dn->id == activeDataNodeId) {
-      dnDiv->fillColor(sf::Color(80, 80, 80, 100));
-    }
-
-    dnDiv->drawOnScreen();
-
-    // Updating Explorer size
-    this->setSize(
-      this->getSize().x,
-      parentDivYPos + (this->dataNodeId * wordHeight) + wordHeight
-    );
-  }
+  // Updating Explorer size
+  this->setSize(
+    this->getSize().x,
+    parentDivYPos + (this->dataNodeId * wordHeight) + wordHeight
+  );
 }
 
 bool Explorer::isAnyEditorActive () {
@@ -178,4 +179,36 @@ void Explorer::openNewTab(DataNode *dn) {
   this->activeDataNodeId = id;
   this->openEditors[id] = newEditor;
   this->tabTray->push(dn->filename, id, newEditor);
+}
+
+void Explorer::drawDataNodeTree (DataNode *dn, int &nodeCount) {
+  if (dn == NULL) {
+    return;
+  }
+
+  for (int i = 0; i < dn->children.size(); i++) {
+    DataNode *child = dn->children[i];
+    DataNodeElement *dnDiv = this->fileDivs[child];
+
+    dnDiv->setPosition(
+      this->getPosition().x,
+      this->getPosition().y + nodeCount * this->config->getExplorerWordHeight()
+    );
+
+    dnDiv->setSize(
+      this->getSize().x,
+      this->config->getExplorerWordHeight()
+    );
+
+    if (dnDiv->dn->id == this->activeDataNodeId) {
+      dnDiv->fillColor(sf::Color(80, 80, 80, 100));
+    }
+
+    dnDiv->drawOnScreen();
+    nodeCount++;
+
+    if (child->isDirectory && child->children.size()) {
+      this->drawDataNodeTree(child, nodeCount);
+    }
+  }
 }

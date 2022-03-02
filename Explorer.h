@@ -18,7 +18,7 @@ public:
   GlobalConfig *config;
   DataNode *workplace;
   std::map <int, EditorSpace *> openEditors;
-  std::vector <DataNodeElement *> fileDivs;
+  std::map <DataNode *, DataNodeElement *> fileDivs;
   int dataNodeId;
 
   int activeDataNodeId;
@@ -35,6 +35,7 @@ public:
   void populateDataNode (DataNode *);
 
   void drawOnScreen();
+  void drawDataNodeTree (DataNode *, int &);
 };
 
 #endif

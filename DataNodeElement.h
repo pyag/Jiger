@@ -7,6 +7,7 @@
 
 struct DataNodeElement : public Div {
   bool isDirectory;
+  bool isExpanded;
   DataNode *dn;
   GlobalConfig *config;
 
