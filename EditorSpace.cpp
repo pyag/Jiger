@@ -487,6 +487,8 @@ void EditorSpace::drawOnScreen () {
     }
   }
 
+  delete parser;
+
   this->cursor->setSize(
     this->config->getCursorWidth(),
     this->config->getCursorHeight()
@@ -747,7 +749,7 @@ void EditorSpace::selectIfRequired (int index, float x, float y) {
       sf::Vector2f(this->config->getWordWidth(), this->config->getWordHeight())
     );
     background.setPosition(sf::Vector2f(x, y));
-    background.setFillColor(sf::Color(65, 105, 225, 100));
+    background.setFillColor(sf::Color(65, 105, 225, 90));
 
     this->getWindow()->draw(background);
   }
@@ -774,4 +776,13 @@ int EditorSpace::getSelectionLower () {
 
 int EditorSpace::getSelectionHigher () {
   return std::max(this->selectionStartIndex, this->selectionEndIndex);
+}
+
+void EditorSpace::cleanUp () {
+  delete this->buf;
+  delete this->cursor;  
+}
+
+EditorSpace::~EditorSpace () {
+  this->cleanUp();
 }

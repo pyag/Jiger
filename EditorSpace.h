@@ -67,6 +67,8 @@ public:
   int getSelectionLower ();
   int getSelectionHigher ();
 
+  void cleanUp ();
+  ~EditorSpace ();
 };
 
 #endif

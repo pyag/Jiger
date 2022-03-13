@@ -18,6 +18,7 @@ public:
 
   sf::RenderWindow *window;
 
+  Div ();
   Div (sf::RenderWindow *);
   
   void setSize(float, float, bool percentage = false);
@@ -40,6 +41,7 @@ public:
   void setWatchableView (sf::View &);
   sf::View &getWatchableView ();
 
+  void setWindow (sf::RenderWindow *);
   sf::RenderWindow *getWindow ();
 
   bool mouseInMyArea(float, float);

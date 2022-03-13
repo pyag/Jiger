@@ -12,43 +12,54 @@ Explorer::Explorer (GlobalConfig *config, sf::RenderWindow *window): Div(window)
 
   this->excludedFilePatterns.push_back(".");
   this->dataNodeId = 0;
+  this->globalDataNodeIteratorIndex = 0;
+}
+
+// Callback for polling events on single Datanode
+void Explorer::pollUserEventsOnSingleDn (Explorer *self, std::vector <void *> args) {
+  DataNode *dn = (DataNode *) args[2];
+  sf::Event *event = (sf::Event *) args[4];
+
+  dn->pollUserEvents(*event);
+  dn->onHover(&self->getWatchableView());
+
+  // Check onclick event
+  if (dn->onClick(*event, &self->getWatchableView())) {
+
+    if (dn->isDirectory) {
+
+      if (!dn->isExpanded) {
+      // Open file/folders inside the DataNode
+        if (!dn->children.size()) {
+          self->populateDataNode(dn);
+        }
+        dn->isExpanded = true;
+      } else {
+        self->hideDataNode(dn);
+      }
+
+    } else {
+      // Open editor for the DataNode
+      self->openNewTab(dn);
+    }
+  }
 }
 
 void Explorer::pollUserEvents (sf::Event &event) {
   Div::pollEvents(event);
 
   {
-    std::map <DataNode *, DataNodeElement *>::iterator it;
-    for (it = this->fileDivs.begin(); it != this->fileDivs.end(); it++) {
-      it->second->pollUserEvents(event);
-      it->second->onHover(&this->getWatchableView());
+    std::vector <void *> args;
+    int depth = 0;
 
-      // Check onclick event
-      if (it->second->onClick(event, &this->getWatchableView())) {
+    args.push_back(&this->globalDataNodeIteratorIndex);
+    args.push_back(this->workplace);
+    args.push_back(this->workplace);
+    args.push_back(&depth);
+    args.push_back(&event);
 
-        // Open editor according to the Data Node
-        if (it->first->isDirectory) {
-
-          if (!it->second->isExpanded) {
-            // Open file/folders inside the DataNode
-            this->populateDataNode(it->first);
-          } else {
-            // Clear all the populated children in Datanode
-            // This deallocates the memory
-            // Could have used .clear(), but it does not deallocates memory
-            std::vector <DataNode *> ().swap(it->first->children);
-          }
-
-          // Toggle the expanded folder (Show <-> Hide)
-          it->second->isExpanded = !it->second->isExpanded;
-
-        } else {
-          this->openNewTab(it->first);
-        }
-
-        return;
-      }
-    }
+    this->iteratorDataNode(this->pollUserEventsOnSingleDn, args);
+    this->globalDataNodeIteratorIndex = 0;
   }
 
   // Resizing Div on window
@@ -109,9 +120,16 @@ void Explorer::pollUserEvents (sf::Event &event) {
 }
 
 void Explorer::loadWorkPlace (const std::string &path) {
-  this->workplace = new DataNode();
-  this->workplace->fullpath = path;
+  this->workplace = new DataNode(path, this->config, this->getWindow());
   this->populateDataNode(this->workplace);
+
+  if (this->workplace != NULL) {
+    this->workplace->isExpanded = true;
+  }
+}
+
+void Explorer::offLoadWorkPlace () {
+  delete this->workplace;
 }
 
 void Explorer::populateDataNode (DataNode *dn) {
@@ -120,15 +138,11 @@ void Explorer::populateDataNode (DataNode *dn) {
   for (int i = 0; i < dn->children.size(); i++) {
     DataNode *child = dn->children[i];
     child->id = this->dataNodeId++;
-
-    DataNodeElement *displayDn = new DataNodeElement(
-      child,
-      this->config,
-      this->getWindow()
-    );
-
-    this->fileDivs[child] = displayDn;
   }
+}
+
+void Explorer::hideDataNode (DataNode *dn) {
+  dn->isExpanded = false;
 }
 
 void Explorer::drawOnScreen () {
@@ -139,19 +153,13 @@ void Explorer::drawOnScreen () {
   }
 
   float wordHeight = this->config->getExplorerWordHeight();
-  float parentDivYPos = this->getPosition().y;
-  float paintYPos = 0.0f;
-  float topYPadding = 50.0f;
 
-  parentDivYPos += topYPadding;
-
-  int nodeCount = 0;
-  this->drawDataNodeTree(this->workplace, nodeCount);
+  this->drawDataNodeTree(this->workplace);
 
   // Updating Explorer size
   this->setSize(
     this->getSize().x,
-    parentDivYPos + (this->dataNodeId * wordHeight) + wordHeight
+    this->getPosition().y + (this->dataNodeId * wordHeight) + wordHeight
   );
 }
 
@@ -159,7 +167,7 @@ bool Explorer::isAnyEditorActive () {
   return (this->activeDataNodeId != -1);
 }
 
-void Explorer::openNewTab(DataNode *dn) {
+void Explorer::openNewTab (DataNode *dn) {
   int id = dn->id;
 
   if (this->openEditors.find(id) != this->openEditors.end()) {
@@ -181,34 +189,90 @@ void Explorer::openNewTab(DataNode *dn) {
   this->tabTray->push(dn->filename, id, newEditor);
 }
 
-void Explorer::drawDataNodeTree (DataNode *dn, int &nodeCount) {
+void Explorer::drawSingleDataNode (Explorer *self, std::vector <void *> args) {
+  DataNode *dn = (DataNode *) args[2];
+  int depth = *((int *) args[3]);
+
   if (dn == NULL) {
     return;
   }
 
-  for (int i = 0; i < dn->children.size(); i++) {
-    DataNode *child = dn->children[i];
-    DataNodeElement *dnDiv = this->fileDivs[child];
+  dn->setPosition(
+    self->getPosition().x,
+    self->getPosition().y +
+      self->globalDataNodeIteratorIndex * self->config->getExplorerWordHeight()
+  );
 
-    dnDiv->setPosition(
-      this->getPosition().x,
-      this->getPosition().y + nodeCount * this->config->getExplorerWordHeight()
-    );
+  dn->setSize(
+    self->getSize().x,
+    self->config->getExplorerWordHeight()
+  );
 
-    dnDiv->setSize(
-      this->getSize().x,
-      this->config->getExplorerWordHeight()
-    );
+  if (dn->id == self->activeDataNodeId) {
+    dn->fillColor(sf::Color(80, 80, 80, 100));
+  }
 
-    if (dnDiv->dn->id == this->activeDataNodeId) {
-      dnDiv->fillColor(sf::Color(80, 80, 80, 100));
-    }
+  dn->drawOnScreen(depth);
+}
 
-    dnDiv->drawOnScreen();
-    nodeCount++;
+void Explorer::drawDataNodeTree (DataNode *dn) {
 
-    if (child->isDirectory && child->children.size()) {
-      this->drawDataNodeTree(child, nodeCount);
+  std::vector <void *> args;
+  int depth = 0;
+
+  args.push_back(&this->globalDataNodeIteratorIndex);
+  args.push_back(this->workplace);
+  args.push_back(this->workplace);
+  args.push_back(&depth);
+
+
+  this->iteratorDataNode(this->drawSingleDataNode, args);
+  this->globalDataNodeIteratorIndex = 0;
+}
+
+/*
+ * args array contains arguments for iterator
+ * Indexes:
+ *  - 0: index for iterator
+ *  - 1: Root node for Data Node
+ *  - 2: Iterator to point current Data Node
+ *
+ */
+void Explorer::iteratorDataNode (void (*callback)(Explorer *, std::vector <void *>),
+  std::vector <void *> &args) {
+
+  int *index = (int *) args[0];
+  DataNode *root = (DataNode *) args[1];
+  DataNode *dn = (DataNode *) args[2];
+  int depth = *((int *) args[3]);
+
+  if (dn == NULL) {
+    return;
+  }
+
+  if (dn != root) {
+    callback(this, args);
+  }
+
+  (*index)++;
+
+  if (dn->isDirectory && dn->isExpanded) {
+    for (int i = 0; i < (int) dn->children.size(); i++) {
+      args[2] = dn->children[i];
+      *((int *) args[3]) = depth + 1;
+
+      this->iteratorDataNode(callback, args);
+
+      *((int *) args[3]) = depth;
     }
   }
+}
+
+void Explorer::cleanUp () {
+  this->offLoadWorkPlace();
+  delete this->tabTray;  
+}
+
+Explorer::~Explorer () {
+  this->cleanUp();
 }

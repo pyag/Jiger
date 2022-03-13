@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+Div::Div () {}
+
 Div::Div (sf::RenderWindow *window) {
   this->window = window;
   this->mousePressedState = false;
@@ -52,6 +54,10 @@ sf::Vector2f Div::getPosition () {
 
 sf::Vector2f Div::getSize () {
   return this->divBox.getSize();
+}
+
+void Div::setWindow (sf::RenderWindow *window) {
+  this->window = window;
 }
 
 sf::RenderWindow *Div::getWindow () {

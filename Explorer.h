@@ -9,7 +9,6 @@
 #include "Div.h"
 #include "GlobalConfigs.h"
 #include "DataNode.h"
-#include "DataNodeElement.h"
 #include "EditorSpace.h"
 #include "TabTray.h"
 
@@ -18,8 +17,8 @@ public:
   GlobalConfig *config;
   DataNode *workplace;
   std::map <int, EditorSpace *> openEditors;
-  std::map <DataNode *, DataNodeElement *> fileDivs;
   int dataNodeId;
+  int globalDataNodeIteratorIndex;
 
   int activeDataNodeId;
   TabTray *tabTray;
@@ -31,11 +30,22 @@ public:
   void pollUserEvents (sf::Event &);
 
   void loadWorkPlace (const std::string &);
-  void openNewTab(DataNode *);
+  void openNewTab (DataNode *);
   void populateDataNode (DataNode *);
+  void hideDataNode (DataNode *);
 
-  void drawOnScreen();
-  void drawDataNodeTree (DataNode *, int &);
+  void drawOnScreen ();
+  void drawDataNodeTree (DataNode *);
+
+  void iteratorDataNode (void (*callback)(Explorer *, std::vector <void *>),
+    std::vector <void *> &);
+
+  static void pollUserEventsOnSingleDn (Explorer *, std::vector <void *>);
+  static void drawSingleDataNode (Explorer *, std::vector <void *>);
+
+  void offLoadWorkPlace ();
+  void cleanUp ();
+  ~Explorer ();
 };
 
 #endif
