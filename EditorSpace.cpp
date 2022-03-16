@@ -514,6 +514,8 @@ void EditorSpace::drawOnScreen () {
     this->clock.restart();
   }
 
+  this->highlightCurLine(lineTop, lineBottom);
+
   if (
     (this->curLine >= lineTop && this->curLine <= lineBottom)
     && this->showCursor
@@ -776,6 +778,31 @@ int EditorSpace::getSelectionLower () {
 
 int EditorSpace::getSelectionHigher () {
   return std::max(this->selectionStartIndex, this->selectionEndIndex);
+}
+
+void EditorSpace::highlightCurLine (int lineTop, int lineBottom) {
+  if ((this->curLine >= lineTop && this->curLine <= lineBottom)
+    && !this->isAnythingSelected()) {
+    float highlightLineY = Div::getPosition().y +
+      this->curLine * this->config->getWordHeight();
+
+    Div hightlighCurLinetDiv;
+    hightlighCurLinetDiv.setWindow(this->getWindow());
+
+    hightlighCurLinetDiv.setSize(
+      this->getSize().x,
+      this->config->getWordHeight()
+    );
+
+    hightlighCurLinetDiv.setPosition(
+      this->getPosition().x,
+      highlightLineY
+    );
+
+    hightlighCurLinetDiv.fillColor(sf::Color(130, 130, 130, 16));
+
+    hightlighCurLinetDiv.drawOnScreen();
+  }
 }
 
 void EditorSpace::cleanUp () {
