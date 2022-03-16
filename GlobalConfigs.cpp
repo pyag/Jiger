@@ -2,10 +2,11 @@
 
 ColorComponent::ColorComponent () {}
 
-ColorComponent::ColorComponent (int r, int g, int b) {
+ColorComponent::ColorComponent (int r, int g, int b, int opacity) {
   this->r = r;
   this->g = g;
   this->b = b;
+  this->opacity = opacity;
 }
 
 GlobalConfig::GlobalConfig () {
@@ -48,6 +49,7 @@ GlobalConfig::GlobalConfig () {
   this->setCurLineNumberColor(200, 200, 200);
   this->setExplorerFontColor(160, 160, 160);
   this->setTabTrayBgColor(39, 39, 41);
+  this->setHightlightCurLineColor(130, 130, 130, 16);
 
   this->setFont("consola");
   this->setExplorerFont("monaco");
@@ -194,6 +196,13 @@ void GlobalConfig::setTabTrayBgColor (int r, int g, int b) {
   this->tabTrayBgColor.r = r;
   this->tabTrayBgColor.g = g;
   this->tabTrayBgColor.b = b;  
+}
+
+void GlobalConfig::setHightlightCurLineColor (int r, int g, int b, int opacity) {
+  this->hightlightCurLineColor.r = r;
+  this->hightlightCurLineColor.g = g;
+  this->hightlightCurLineColor.b = b;
+  this->hightlightCurLineColor.opacity = opacity;
 }
 
 void GlobalConfig::setFont (std::string fontName) {
@@ -349,6 +358,10 @@ ColorComponent GlobalConfig::getExplorerFontColor () {
 
 ColorComponent GlobalConfig::getTabTrayBgColor () {
   return this->tabTrayBgColor;
+}
+
+ColorComponent GlobalConfig::getHightlightCurLineColor () {
+  return this->hightlightCurLineColor;
 }
 
 sf::Font& GlobalConfig::getFont () {

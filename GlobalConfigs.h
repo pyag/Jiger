@@ -22,10 +22,10 @@ enum ProgLang {
 };
 
 struct ColorComponent {
-  int r, g, b;
+  int r, g, b, opacity;
 
   ColorComponent ();
-  ColorComponent (int, int, int);
+  ColorComponent (int, int, int, int opacity = 255);
 };
 
 struct GlobalConfig {
@@ -58,6 +58,7 @@ struct GlobalConfig {
   ColorComponent curLineNumberColor;
   ColorComponent explorerFontColor;
   ColorComponent tabTrayBgColor;
+  ColorComponent hightlightCurLineColor;
 
   sf::Font font;
   sf::Font explorerFont;
@@ -106,6 +107,7 @@ struct GlobalConfig {
   void setFont (std::string);
   void setExplorerFont (std::string);
   void setTabTrayBgColor (int, int, int);
+  void setHightlightCurLineColor (int, int, int, int);
 
   // Getters
   int getFontSize ();
@@ -140,6 +142,7 @@ struct GlobalConfig {
   int getCursorBlinkTimeInSeconds ();
   float getCursorHeight ();
   float getCursorWidth ();
+
   ColorComponent getFontColor ();
   ColorComponent getBgColor ();
   ColorComponent getExplorerColor ();
@@ -147,6 +150,8 @@ struct GlobalConfig {
   ColorComponent getCurLineNumberColor ();
   ColorComponent getExplorerFontColor ();
   ColorComponent getTabTrayBgColor ();
+  ColorComponent getHightlightCurLineColor ();
+
   sf::Font& getFont ();
   sf::Font& getExplorerFont();
 };

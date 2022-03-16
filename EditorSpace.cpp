@@ -584,7 +584,9 @@ void EditorSpace::displayLineNumber (int start, int end) {
     std::string lineStr = std::to_string(line + 1);
     xNumPos = this->config->getBreakPointMarkWidth();
     yNumPos = line * this->config->getWordHeight();
-    xNumPosPadding = lineNumThresh - lineStr.length() > 0 ? lineNumThresh - lineStr.length() : 0;
+    xNumPosPadding = lineNumThresh - lineStr.length() > 0 
+      ? lineNumThresh - lineStr.length() 
+      : 0;
 
     if (line == this->curLine) {
       num.setFillColor(curLineNumberColor);
@@ -596,7 +598,8 @@ void EditorSpace::displayLineNumber (int start, int end) {
       num.setString(lineStr[i]);
       num.setPosition(
         sf::Vector2f(
-          parentDivPos.x + (float)(xNumPosPadding + xNumPos++) * this->config->getWordWidth(),
+          parentDivPos.x 
+            +(float)(xNumPosPadding + xNumPos++) * this->config->getWordWidth(),
           parentDivPos.y + (float)yNumPos
         )
       );
@@ -799,7 +802,12 @@ void EditorSpace::highlightCurLine (int lineTop, int lineBottom) {
       highlightLineY
     );
 
-    hightlighCurLinetDiv.fillColor(sf::Color(130, 130, 130, 16));
+    hightlighCurLinetDiv.fillColor(sf::Color(
+      this->config->getHightlightCurLineColor().r,
+      this->config->getHightlightCurLineColor().g,
+      this->config->getHightlightCurLineColor().b,
+      this->config->getHightlightCurLineColor().opacity
+    ));
 
     hightlighCurLinetDiv.drawOnScreen();
   }
