@@ -31,6 +31,7 @@ public:
 
   void loadWorkPlace (const std::string &);
   void openNewTab (DataNode *);
+  void closeTab ();
   void populateDataNode (DataNode *);
   void hideDataNode (DataNode *);
 
@@ -42,6 +43,7 @@ public:
 
   static void pollUserEventsOnSingleDn (Explorer *, std::vector <void *>);
   static void drawSingleDataNode (Explorer *, std::vector <void *>);
+  static void deleteDataNodePointers (Explorer *, std::vector <void *>);
 
   void offLoadWorkPlace ();
   void cleanUp ();

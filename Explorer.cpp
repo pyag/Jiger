@@ -128,7 +128,23 @@ void Explorer::loadWorkPlace (const std::string &path) {
   }
 }
 
+void Explorer::deleteDataNodePointers (Explorer *self, std::vector <void *> args) {
+  DataNode *dn = (DataNode *) args[2];
+  delete dn;
+}
+
 void Explorer::offLoadWorkPlace () {
+  std::vector <void *> args;
+  int depth = 0;
+
+  args.push_back(&this->globalDataNodeIteratorIndex);
+  args.push_back(this->workplace);
+  args.push_back(this->workplace);
+  args.push_back(&depth);
+
+  this->iteratorDataNode(this->deleteDataNodePointers, args);
+  this->globalDataNodeIteratorIndex = 0;
+
   delete this->workplace;
 }
 
