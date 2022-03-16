@@ -450,7 +450,7 @@ void EditorSpace::drawOnScreen () {
 
   yWordPosition += lineTop * this->config->getWordHeight();
   Parser *parser = new Parser();
-  parser->loadBuffer(this->buf->getSource(), startIndex, endIndex);
+  parser->loadBuffer(this->buf, startIndex, endIndex);
 
   int runningIndex = startIndex;
 
@@ -811,6 +811,14 @@ void EditorSpace::highlightCurLine (int lineTop, int lineBottom) {
 
     hightlighCurLinetDiv.drawOnScreen();
   }
+}
+
+void EditorSpace::hoppingAhead () {
+  // int curIndex = 
+}
+
+void EditorSpace::hoppingBehind () {
+
 }
 
 void EditorSpace::cleanUp () {

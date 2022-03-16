@@ -4,17 +4,19 @@
 #include <string>
 #include <iostream>
 
+#include "Buffer.h"
+
 class Parser {
 public:
-  std::string buffer;
+  Buffer *buffer;
   int curIndex;
   int startIndex, endIndex;
 
   Parser ();
-  Parser (const std::string &);
+  Parser (Buffer *);
 
-  void loadBuffer (const std::string &);
-  void loadBuffer (const std::string &, int, int);
+  void loadBuffer (Buffer *);
+  void loadBuffer (Buffer *, int, int);
   bool hasNextToken ();
   std::string getToken ();
 };

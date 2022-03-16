@@ -6,21 +6,21 @@ Parser::Parser () {
   this->endIndex = 0;
 }
 
-Parser::Parser (const std::string &buffer) {
+Parser::Parser (Buffer *buffer) {
   this->curIndex = 0;
   this->startIndex = 0;
   this->buffer = buffer;
-  this->endIndex = this->buffer.length();
+  this->endIndex = this->buffer->getBufferLength();
 }
 
-void Parser::loadBuffer (const std::string &buffer) {
+void Parser::loadBuffer (Buffer *buffer) {
   this->curIndex = 0;
   this->startIndex = 0;
   this->buffer = buffer;
-  this->endIndex = this->buffer.length();
+  this->endIndex = this->buffer->getBufferLength();
 }
 
-void Parser::loadBuffer (const std::string &buffer, int start, int end) {
+void Parser::loadBuffer (Buffer *buffer, int start, int end) {
   this->curIndex = start;
   this->startIndex = start;
   this->endIndex = end;
@@ -38,10 +38,11 @@ std::string Parser::getToken () {
   char ch;
   
   if (index < this->endIndex) {
-    ch = this->buffer[index];
+    ch = this->buffer->getCharAtPos(index);
     while((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch == '#')) {
       token += ch;
-      ch = this->buffer[++index];
+      ++index;
+      ch = this->buffer->getCharAtPos(index);
       isAlphabet = true;
     }
 
@@ -50,7 +51,8 @@ std::string Parser::getToken () {
       return token;
     }
 
-    token = this->buffer[index++];
+    token = this->buffer->getCharAtPos(index);
+    index++;
   }
   
   this->curIndex = index;

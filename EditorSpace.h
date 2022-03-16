@@ -69,6 +69,9 @@ public:
 
   void highlightCurLine (int, int);
 
+  void hoppingAhead ();
+  void hoppingBehind ();
+
   void cleanUp ();
   ~EditorSpace ();
 };
