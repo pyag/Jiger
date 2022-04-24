@@ -108,3 +108,17 @@ bool Buffer::empty () {
 void Buffer::write () {
   writeFile(this->fileLoc, this->source);
 }
+
+void Buffer::clearBuffer () {
+  // Clear the string and relaim its memory
+  std::string().swap(this->source);
+}
+
+void Buffer::cleanUp () {
+  this->clearBuffer();
+  std::vector <int> ().swap(this->lineStartsWith);
+}
+
+Buffer::~Buffer () {
+  this->cleanUp();
+}

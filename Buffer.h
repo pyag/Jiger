@@ -29,6 +29,11 @@ public:
   bool empty ();
 
   void write ();
+  void clearBuffer();
+
+  void cleanUp ();
+  ~Buffer ();
+
 };
 
 #endif

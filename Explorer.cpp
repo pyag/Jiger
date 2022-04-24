@@ -241,7 +241,6 @@ void Explorer::drawDataNodeTree (DataNode *dn) {
   args.push_back(this->workplace);
   args.push_back(&depth);
 
-
   this->iteratorDataNode(this->drawSingleDataNode, args);
   this->globalDataNodeIteratorIndex = 0;
 }
@@ -286,7 +285,7 @@ void Explorer::iteratorDataNode (void (*callback)(Explorer *, std::vector <void 
 
 void Explorer::cleanUp () {
   this->offLoadWorkPlace();
-  delete this->tabTray;  
+  delete this->tabTray;
 }
 
 Explorer::~Explorer () {

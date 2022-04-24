@@ -69,8 +69,11 @@ public:
 
   void highlightCurLine (int, int);
 
-  void hoppingAhead ();
-  void hoppingBehind ();
+  int hoppingAhead ();
+  int hoppingBehind ();
+
+  bool isAlphaNumeric (char);
+  bool isSpaceOrReturn (char);
 
   void cleanUp ();
   ~EditorSpace ();

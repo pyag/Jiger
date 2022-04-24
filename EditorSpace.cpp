@@ -279,6 +279,19 @@ void EditorSpace::pollUserEvents (sf::Event &event) {
     return;
   }
 
+  // Ctrl + Right - Hop next word
+  if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+    || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+    && sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+
+    this->showCursor = true;
+    this->clock.restart();
+
+    std::cout << "Clicked left + ctrl\n";
+    this->cursorIndex = this->hoppingAhead();
+    return;
+  }
+
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
     this->showCursor = true;
     this->clock.restart();
@@ -813,17 +826,69 @@ void EditorSpace::highlightCurLine (int lineTop, int lineBottom) {
   }
 }
 
-void EditorSpace::hoppingAhead () {
-  // int curIndex = 
+/*
+ *  Hop ahead hops cursor to next group of
+ *  word.
+ *  Groups are:
+ *  -> Numbers + Alphabet
+ *  -> Whitespace + Return(Enter Key)
+ *  -> Special chars
+ */
+int EditorSpace::hoppingAhead () {
+  int index = this->cursorIndex;
+  int len = this->buf->getBufferLength();
+
+  if (this->buf->empty()) {
+    return 0;
+  }
+
+  char curChar = this->buf->getCharAtPos(index);
+
+  if (this->isAlphaNumeric(curChar)) {
+    while ((index < len) && this->isAlphaNumeric(curChar)) {
+      index++;
+      curChar = this->buf->getCharAtPos(index);
+    }
+
+    return index;
+  }
+
+  if (this->isSpaceOrReturn(curChar)) {
+    while ((index < len) && this->isSpaceOrReturn(curChar)) {
+      index++;
+      curChar = this->buf->getCharAtPos(index);
+    }
+
+    return index;
+  }
+
+  while ((index < len)
+    && !this->isAlphaNumeric(curChar)
+    && !this->isSpaceOrReturn(curChar)) {
+    index++;
+    curChar = this->buf->getCharAtPos(index);
+  }
+
+  return index;
 }
 
-void EditorSpace::hoppingBehind () {
+int EditorSpace::hoppingBehind () {
 
+}
+
+bool EditorSpace::isAlphaNumeric (char ch) {
+  return ((ch >= 'a' && ch <= 'z') 
+    || (ch >= 'A' && ch <= 'Z')
+    || (ch >= '0' && ch <= '9'));
+}
+
+bool EditorSpace::isSpaceOrReturn (char ch) {
+  return (ch == ' ' || ch == '\n');
 }
 
 void EditorSpace::cleanUp () {
   delete this->buf;
-  delete this->cursor;  
+  delete this->cursor;
 }
 
 EditorSpace::~EditorSpace () {
