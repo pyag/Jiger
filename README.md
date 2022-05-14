@@ -4,7 +4,7 @@ Editor
 
 #### Prerequisite
 - C++
-- SFML (Graphics library)
+- SFML 2.5 (Graphics library)
 
 #### Aim
 - Should be fast
@@ -13,7 +13,17 @@ Editor
 
 #### Build and Run instruction
 ##### Linux (Ubuntu)
-Refer the buildCommand.txt file.
+To build
+```
+make compile2.5
+```
+
+To run
+```
+make run2.5
+```
+
+Refer Makefile. Commands with `compile` and `run` won't work without append `2.5` with them.
 
 #### Screenshot
 ![Ubuntu Screenshot](/screenshots/ubuntu1.png?raw=true "Ubuntu Screenshot")
