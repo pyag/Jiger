@@ -1,5 +1,0 @@
-Compile: g++ -c main.cpp GlobalConfigs.cpp Div.cpp DataNode.cpp Parser.cpp EditorSpace.cpp Tab.cpp TabTray.cpp Explorer.cpp FileOperations.cpp Buffer.cpp langHighlight/*.cpp langHighlight/cpp/*.cpp -std=c++11
-
-Build:  g++ main.o GlobalConfigs.o Div.o DataNode.o Parser.o EditorSpace.o Tab.o TabTray.o Explorer.o FileOperations.o Buffer.o highlight.o keyword.o -o jiger -lsfml-graphics -lsfml-window -lsfml-system
-
-Run: ./jiger
