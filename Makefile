@@ -15,6 +15,8 @@ compile2.5:
 
 	g++ main.o GlobalConfigs.o Div.o DataNode.o Parser.o EditorSpace.o Tab.o TabTray.o Explorer.o FileOperations.o Buffer.o highlight.o keyword.o -o jiger -L${sfmlPath}/lib -lsfml-graphics -lsfml-window -lsfml-system
 
+	rm -f *.o
+
 run2.5:
 	export LD_LIBRARY_PATH=${sfmlPath}/lib && ./jiger
 
