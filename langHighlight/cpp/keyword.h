@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "../../GlobalConfigs.h"
+#include "../../headers/GlobalConfigs.h"
 
 ColorComponent CppHighlighter (std::string &);
 

@@ -1,7 +1,7 @@
 #include <algorithm>
 
-#include "FileOperations.h"
-#include "DataNode.h"
+#include "headers/FileOperations.h"
+#include "headers/DataNode.h"
 
 std::string toLower (const std::string &str) {
   std::string lowerCaseStr;

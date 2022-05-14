@@ -3,10 +3,10 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
-#include "EditorSpace.h"
-#include "Explorer.h"
-#include "FileOperations.h"
-#include "GlobalConfigs.h"
+#include "headers/EditorSpace.h"
+#include "headers/Explorer.h"
+#include "headers/FileOperations.h"
+#include "headers/GlobalConfigs.h"
 
 std::string bufferText;
 GlobalConfig globalEditorConfig;
