@@ -1,5 +1,5 @@
-#include "headers/Explorer.h"
-#include "headers/FileOperations.h"
+#include "../headers/Explorer.h"
+#include "../headers/FileOperations.h"
 
 Explorer::Explorer (GlobalConfig *config, sf::RenderWindow *window): Div(window) {
   this->config = config;

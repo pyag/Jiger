@@ -1,4 +1,4 @@
-#include "headers/Parser.h"
+#include "../headers/Parser.h"
 
 Parser::Parser () {
   this->curIndex = 0;

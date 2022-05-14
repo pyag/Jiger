@@ -1,5 +1,5 @@
-#include "headers/Buffer.h"
-#include "headers/FileOperations.h"
+#include "../headers/Buffer.h"
+#include "../headers/FileOperations.h"
 #include <iostream>
 
 Buffer::Buffer (std::string &loc) {

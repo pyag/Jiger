@@ -1,4 +1,4 @@
-#include "headers/EditorSpace.h"
+#include "../headers/EditorSpace.h"
 
 EditorSpace::EditorSpace (std::string &fileLoc, GlobalConfig *config, sf::RenderWindow *window): Div(window) {
   this->fileLoc = fileLoc;

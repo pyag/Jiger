@@ -1,4 +1,4 @@
-#include "headers/GlobalConfigs.h"
+#include "../headers/GlobalConfigs.h"
 
 ColorComponent::ColorComponent () {}
 

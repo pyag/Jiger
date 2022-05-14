@@ -1,4 +1,4 @@
-#include "headers/TabTray.h"
+#include "../headers/TabTray.h"
 
 TabTray::TabTray (GlobalConfig *config, sf::RenderWindow *window) : Div(window) {
   this->config = config;

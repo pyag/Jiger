@@ -1,4 +1,4 @@
-#include "headers/Tab.h"
+#include "../headers/Tab.h"
 
 Tab::Tab (std::string &name, int dnId, EditorSpace *editor, GlobalConfig *config, sf::RenderWindow *window) : Div(window) {
   this->dnId = dnId;
