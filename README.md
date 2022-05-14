@@ -26,4 +26,4 @@ make run2.5
 Refer Makefile. Commands with `compile` and `run` won't work without append `2.5` with them.
 
 #### Screenshot
-![Ubuntu Screenshot](/screenshots/ubuntu1.png?raw=true "Ubuntu Screenshot")
+![Ubuntu Screenshot](/screenshots/ubuntu2.png?raw=true "Ubuntu Screenshot")
