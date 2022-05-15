@@ -79,8 +79,9 @@ void Buffer::remove (int from, int to) {
   std::string subString1 = this->lineSource[line1].substr(0, line1Offset);
   std::string subString2 = this->lineSource[line2].substr(line2Offset, line2Length - line2Offset);
 
-  for (int i = line1; i <= line2; i++) {
-    this->lineSource.erase(this->lineSource.begin() + i);
+  while (line1 <= line2) {
+    this->lineSource.erase(this->lineSource.begin() + line1);
+    line2--;
   }
 
   this->lineSource.insert(this->lineSource.begin() + line1, subString1 + subString2);
