@@ -4,80 +4,124 @@
 
 Buffer::Buffer (std::string &loc) {
   this->fileLoc = loc;
-  this->source = "";
+  this->lineSource.clear();
   this->lineStartsWith.clear();
 }
 
 void Buffer::loadBuffer () {
-  this->source = readFile(this->fileLoc);
+  std::string original = readFile(this->fileLoc);
+
+  std::string lineText;
+  for (int i = 0; i < original.length(); i++) {
+    lineText += original[i];
+    if (original[i] == '\n') {
+      lineSource.push_back(lineText);
+      lineText = "";
+    }
+  }
+
   this->syncLineBreaks();
 }
 
 void Buffer::syncLineBreaks () {
   this->lineStartsWith.clear();
+
   this->lineStartsWith.push_back(0);
-  for (int i = 0; i < this->source.length(); i++) {
-    if (this->source[i] == '\n') {
-      this->lineStartsWith.push_back(i + 1);
-    }
+  int runningIndex = 0;
+  for (int i = 0; i < (int) this->lineSource.size(); i++) {
+    runningIndex += this->lineSource[i].length();
+    this->lineStartsWith.push_back(runningIndex);
   }
 }
 
 void Buffer::insert (std::string &add, int pos) {
-  int sourceLen = this->getBufferLength();
+  int line = this->getLineNumberByPos(pos);
+  int startIndex = this->lineStartsWith[line];
+  int lineLength = this->lineSource[line].length();
 
-  if (this->source.empty()) {
-    this->source = add;
-    return;
+  int addOffset = pos - startIndex;
+
+  std::string subString1 = this->lineSource[line].substr(0, addOffset);
+  std::string subString2 = this->lineSource[line].substr(addOffset, lineLength - addOffset);
+
+  this->lineSource.erase(this->lineSource.begin() + line);
+
+  for (int i = 0; i < add.length(); i++) {
+    subString1 += add[i];
+    if (add[i] == '\n') {
+      this->lineSource.insert(this->lineSource.begin() + line, subString1);
+      ++line;
+      subString1 = "";
+    }
   }
 
-  this->source = 
-    this->source.substr(0, pos)
-    + add
-    + this->source.substr(pos, sourceLen);
-
+  this->lineSource.insert(this->lineSource.begin() + line, subString1 + subString2);
   this->syncLineBreaks();
 }
 
 void Buffer::remove (int from, int to) {
-  int sourceLen = this->getBufferLength();
-
   if (from >= to) return;
 
+  int sourceLength = this->getBufferLength();
   from = from < 0 ? 0 : from;
-  to = to >= sourceLen ? sourceLen : to;
+  to = to >= sourceLength ? sourceLength : to;
 
-  this->source =
-    this->source.substr(0, from) +
-    (to == sourceLen ? "" : this->source.substr(to, sourceLen));
+  int line1 = this->getLineNumberByPos(from);
+  int line2 = this->getLineNumberByPos(to);
+
+  int line1Start = this->lineStartsWith[line1];
+  int line2Start = this->lineStartsWith[line2];
+  int line2Length = this->lineSource[line2].length();
+
+  int line1Offset = from - line1Start;
+  int line2Offset = to - line2Start;
+
+  std::string subString1 = this->lineSource[line1].substr(0, line1Offset);
+  std::string subString2 = this->lineSource[line2].substr(line2Offset, line2Length - line2Offset);
+
+  for (int i = line1; i <= line2; i++) {
+    this->lineSource.erase(this->lineSource.begin() + i);
+  }
+
+  this->lineSource.insert(this->lineSource.begin() + line1, subString1 + subString2);
 
   this->syncLineBreaks();
 }
 
-std::string & Buffer::getSource () {
-  return this->source;
+std::string Buffer::getSource () {
+  std::string source;
+  for (int i = 0; i < this->lineSource.size(); i++)
+    source += this->lineSource[i];
+
+  return source;
 }
 
 int Buffer::getBufferLength () {
-  return this->source.length();
+  int codeLength = 0;
+  for (int i = 0; i < (int) this->lineSource.size(); i++)
+    codeLength += this->lineSource[i].length();
+
+  return codeLength;
 }
 
 int Buffer::getLineNumberByPos (int pos) {
-  int line = 0;
-  for (int i = 0; i < this->source.length(); i++) {
-    if (i == pos) return line;
-    if (this->source[i] == '\n') line++;
+  int runningIndex = 0;
+  for (int i = 0; i < (int) this->lineSource.size(); i++) {
+    if (pos < runningIndex) return i - 1;
+    runningIndex += this->lineSource[i].length();
   }
 
-  return line;
+  return (int) this->lineSource.size() - 1;
 }
 
 char Buffer::getCharAtPos (int pos) {
-  if (!this->source.empty() && pos >= 0 && pos < this->source.length())
-    return this->source[pos];
+  if (!this->empty() && pos >= 0 && pos < this->getBufferLength()) {
+    int line = this->getLineNumberByPos(pos);
+    int reqIndex = pos - this->lineStartsWith[line];
+    return this->lineSource[line][reqIndex];
+  }
 
-  char empty = '\0';
-  return empty;
+  return '\0';
 }
 
 int Buffer::getLineStartPos (int line) {
@@ -93,25 +137,41 @@ int Buffer::getLineStartPos (int line) {
 }
 
 int Buffer::getLineCount () {
-  return (int)this->lineStartsWith.size();
+  return (int) this->lineSource.size();
 }
 
 std::string Buffer::getSourceByPositions (int from, int to) {
   if (from > to) std::swap(from, to);
-  return this->source.substr(from, to - from);
+
+  int line1 = this->getLineNumberByPos(from);
+  int line2 = this->getLineNumberByPos(to);
+
+  int line1Start = this->lineStartsWith[line1];
+  int line2Start = this->lineStartsWith[line2];
+
+  int line1Offset = from - line1Start;
+  int line2Offset = to - line2Start;
+
+  std::string subString = this->lineSource[line1].substr(line1Start, line1Offset - line1Start);
+  for (int i = line1 + 1; i < line2; i++) {
+    subString += this->lineSource[i];
+  }
+  subString += this->lineSource[line2].substr(line2Start, line2Offset - line2Start);
+
+  return subString;
 }
 
 bool Buffer::empty () {
-  return this->source.empty();
+  return ((int) this->lineSource.size() == 0);
 }
 
 void Buffer::write () {
-  writeFile(this->fileLoc, this->source);
+  writeFile(this->fileLoc, this->getSource());
 }
 
 void Buffer::clearBuffer () {
   // Clear the string and relaim its memory
-  std::string().swap(this->source);
+  std::vector < std::string >().swap(this->lineSource);
 }
 
 void Buffer::cleanUp () {

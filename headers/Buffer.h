@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
-// For now it is only all long string from source
+// For now it is array of strings per line from source
 class Buffer {
 public:
-  std::string source;
   std::string fileLoc;
 
+  std::vector <std::string> lineSource;
   std::vector <int> lineStartsWith;
 
   Buffer (std::string &);
@@ -18,7 +18,7 @@ public:
 
   void insert (std::string &, int);
   void remove (int, int);
-  std::string & getSource ();
+  std::string getSource ();
 
   int getBufferLength ();
   int getLineNumberByPos (int);
